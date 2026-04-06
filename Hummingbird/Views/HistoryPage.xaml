@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Hummingbird.Views.HistoryPage"
+             x:Name="ThisPage"
+             Title="Historial">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <VerticalStackLayout Grid.Row="0" Padding="16,16,16,8">
+            <Label Text="📋 Historial" FontSize="24" FontAttributes="Bold"
+                   TextColor="{StaticResource Primary}"/>
+            <Label Text="{Binding SummaryText}" FontSize="13" TextColor="{StaticResource Gray500}"/>
+        </VerticalStackLayout>
+
+        <CollectionView Grid.Row="1" ItemsSource="{Binding GroupedReadings}"
+                        IsGrouped="True" Margin="16,0">
+
+            <CollectionView.GroupHeaderTemplate>
+                <DataTemplate>
+                    <Label Text="{Binding DateDisplay}" FontSize="14" FontAttributes="Bold"
+                           TextColor="{StaticResource Gray500}" Padding="0,12,0,4"/>
+                </DataTemplate>
+            </CollectionView.GroupHeaderTemplate>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border StrokeShape="RoundRectangle 12" Stroke="Transparent"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                            Padding="12" Margin="0,3">
+                        <Grid ColumnDefinitions="4,*,Auto,Auto" ColumnSpacing="12">
+
+                            <BoxView Grid.Column="0" CornerRadius="2"
+                                     Color="{Binding GlucoseColor}"
+                                     VerticalOptions="Fill"/>
+
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <HorizontalStackLayout Spacing="8">
+                                    <Label Text="{Binding TimeDisplay}" FontSize="15" FontAttributes="Bold"/>
+                                    <Label Text="{Binding Reading.MeasurementType}" FontSize="13"
+                                           TextColor="{StaticResource Gray500}" VerticalOptions="Center"/>
+                                </HorizontalStackLayout>
+                                <Label Text="{Binding Summary}" FontSize="12" TextColor="{StaticResource Gray400}"/>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Column="2" HorizontalOptions="End" VerticalOptions="Center">
+                                <Label Text="{Binding Reading.Glucose}" FontSize="24" FontAttributes="Bold"
+                                       TextColor="{Binding GlucoseColor}" HorizontalTextAlignment="End"/>
+                                <Label Text="mg/dL" FontSize="10" TextColor="{StaticResource Gray400}"
+                                       HorizontalTextAlignment="End"/>
+                            </VerticalStackLayout>
+
+                            <Label Grid.Column="3" Text="✕" FontSize="16"
+                                   TextColor="{StaticResource Gray400}"
+                                   VerticalOptions="Start" Padding="4,0">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnDeleteTapped"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+            <CollectionView.EmptyView>
+                <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center"
+                                     Spacing="8" Padding="40">
+                    <Label Text="📊" FontSize="48" HorizontalOptions="Center"/>
+                    <Label Text="Sin registros aún" FontSize="18" FontAttributes="Bold"
+                           HorizontalOptions="Center"/>
+                    <Label Text="Agrega tu primera medición en la pestaña Registro"
+                           FontSize="14" TextColor="{StaticResource Gray500}"
+                           HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+
+        </CollectionView>
+
+    </Grid>
+
+</ContentPage>

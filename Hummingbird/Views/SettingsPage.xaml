@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Hummingbird.Views.SettingsPage"
+             Title="Ajustes">
+
+    <ScrollView Padding="16">
+        <VerticalStackLayout Spacing="16">
+
+            <Label Text="⚙️ Configuración" FontSize="24" FontAttributes="Bold"
+                   TextColor="{StaticResource Primary}" Padding="0,8,0,0"/>
+
+            <!-- Formula Card -->
+            <Border StrokeShape="RoundRectangle 16" Stroke="Transparent"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource Tertiary}}"
+                    Padding="16">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="🧮 Fórmula de Dosis" FontSize="16" FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource White}}"/>
+
+                    <Label Text="{Binding FormulaPreview}" FontSize="15" FontFamily="OpenSansSemibold"
+                           TextColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource Secondary}}"
+                           HorizontalTextAlignment="Center" Padding="0,8"/>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <VerticalStackLayout Grid.Column="0" Spacing="4">
+                            <Label Text="Objetivo glicemia" FontSize="13"
+                                   TextColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource Secondary}}"/>
+                            <Entry Keyboard="Numeric" Text="{Binding GlucoseTarget}"
+                                   BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark=#064E3B}"/>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                            <Label Text="Factor corrección" FontSize="13"
+                                   TextColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource Secondary}}"/>
+                            <Entry Keyboard="Numeric" Text="{Binding CorrectionFactor}"
+                                   BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark=#064E3B}"/>
+                        </VerticalStackLayout>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Ranges Card -->
+            <Border StrokeShape="RoundRectangle 16" Stroke="Transparent"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                    Padding="16">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="🎯 Rangos de Glicemia (mg/dL)" FontSize="16" FontAttributes="Bold"/>
+
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12"
+                          RowDefinitions="Auto,Auto,Auto" RowSpacing="12">
+
+                        <HorizontalStackLayout Grid.Row="0" Grid.Column="0" Spacing="6" VerticalOptions="Center">
+                            <BoxView WidthRequest="12" HeightRequest="12" CornerRadius="6"
+                                     Color="{StaticResource GlucoseLow}"/>
+                            <Label Text="Bajo" FontSize="13" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                        <Entry Grid.Row="0" Grid.Column="1" Keyboard="Numeric" Text="{Binding RangeLow}"/>
+
+                        <HorizontalStackLayout Grid.Row="1" Grid.Column="0" Spacing="6" VerticalOptions="Center">
+                            <BoxView WidthRequest="12" HeightRequest="12" CornerRadius="6"
+                                     Color="{StaticResource GlucoseHigh}"/>
+                            <Label Text="Alto" FontSize="13" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                        <Entry Grid.Row="1" Grid.Column="1" Keyboard="Numeric" Text="{Binding RangeHigh}"/>
+
+                        <HorizontalStackLayout Grid.Row="2" Grid.Column="0" Spacing="6" VerticalOptions="Center">
+                            <BoxView WidthRequest="12" HeightRequest="12" CornerRadius="6"
+                                     Color="{StaticResource GlucoseVeryHigh}"/>
+                            <Label Text="Muy alto" FontSize="13" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                        <Entry Grid.Row="2" Grid.Column="1" Keyboard="Numeric" Text="{Binding RangeVeryHigh}"/>
+
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Insulin Card -->
+            <Border StrokeShape="RoundRectangle 16" Stroke="Transparent"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                    Padding="16">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="💉 Insulina" FontSize="16" FontAttributes="Bold"/>
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Ratio insulina/carbohidratos" FontSize="13" TextColor="{StaticResource Gray500}"/>
+                        <Entry Keyboard="Numeric" Text="{Binding InsulinCarbRatio}"/>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Save Button -->
+            <Button Text="💾  Guardar Configuración" Command="{Binding SaveCommand}"
+                    FontSize="16" FontAttributes="Bold"
+                    HeightRequest="54" CornerRadius="16"
+                    Margin="0,4,0,20"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

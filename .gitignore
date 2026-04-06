@@ -1,0 +1,77 @@
+## .NET / .NET MAUI
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Visual Studio
+.vs/
+*.rsuser
+[Tt]est[Rr]esult*/
+[Dd]ebug[Pp]ublic/
+[Rr]elease/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Ll]og/
+[Ll]ogs/
+
+## NuGet
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+*.nupkg
+**/packages/repositories.config
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+*_i.c
+*_p.c
+*_h.h
+*.ilk
+*.meta
+*.obj
+*.iobj
+*.pch
+*.pdb
+*.ipdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+*_wpftmp.csproj
+*.log
+*.tlog
+*.vspscc
+*.vssscc
+.builds
+*.pidb
+*.svclog
+*.scc
+
+## OS files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+## Android
+*.apk
+*.aab
+*.keystore
+!*.example.keystore
+
+## iOS
+*.ipa
+*.dSYM.zip
+*.dSYM

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="Hummingbird.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:Hummingbird.Views"
+    Shell.FlyoutBehavior="Disabled"
+    Title="Hummingbird">
+
+    <TabBar>
+        <ShellContent Title="Inicio" Route="Dashboard"
+                      ContentTemplate="{DataTemplate views:DashboardPage}"/>
+        <ShellContent Title="Registro" Route="DailyEntry"
+                      ContentTemplate="{DataTemplate views:DailyEntryPage}"/>
+        <ShellContent Title="Historial" Route="History"
+                      ContentTemplate="{DataTemplate views:HistoryPage}"/>
+        <ShellContent Title="Comidas" Route="MealTracking"
+                      ContentTemplate="{DataTemplate views:MealTrackingPage}"/>
+        <ShellContent Title="Ajustes" Route="Settings"
+                      ContentTemplate="{DataTemplate views:SettingsPage}"/>
+    </TabBar>
+
+</Shell>

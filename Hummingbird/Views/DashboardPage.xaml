@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Hummingbird.Views.DashboardPage"
+             Title="Inicio">
+
+    <ScrollView Padding="16">
+        <VerticalStackLayout Spacing="16">
+
+            <VerticalStackLayout Spacing="4" Padding="0,8,0,0">
+                <Label Text="🩸 Hummingbird" FontSize="28" FontAttributes="Bold"
+                       TextColor="{StaticResource Primary}"/>
+                <Label Text="Control de Glicemia" FontSize="16"
+                       TextColor="{StaticResource Gray500}"/>
+            </VerticalStackLayout>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowSpacing="12">
+                <Border Grid.Column="0" StrokeShape="RoundRectangle 16" Stroke="Transparent"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                        Padding="16">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Promedio" FontSize="13" TextColor="{StaticResource Gray500}"/>
+                        <Label Text="{Binding AverageGlucose}" FontSize="36" FontAttributes="Bold"
+                               TextColor="{StaticResource Primary}"/>
+                        <Label Text="mg/dL · 7 días" FontSize="11" TextColor="{StaticResource Gray400}"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Grid.Column="1" StrokeShape="RoundRectangle 16" Stroke="Transparent"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                        Padding="16">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="En rango" FontSize="13" TextColor="{StaticResource Gray500}"/>
+                        <Label Text="{Binding PercentInRange}" FontSize="36" FontAttributes="Bold"
+                               TextColor="{StaticResource GlucoseInRange}"/>
+                        <Label Text="objetivo · 7 días" FontSize="11" TextColor="{StaticResource Gray400}"/>
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Border Grid.Column="0" StrokeShape="RoundRectangle 16" Stroke="Transparent"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                        Padding="16">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Última medición" FontSize="13" TextColor="{StaticResource Gray500}"/>
+                        <Label Text="{Binding LastGlucose}" FontSize="36" FontAttributes="Bold"
+                               TextColor="{Binding LastGlucoseColor}"/>
+                        <Label Text="{Binding LastGlucoseTime}" FontSize="11" TextColor="{StaticResource Gray400}"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Grid.Column="1" StrokeShape="RoundRectangle 16" Stroke="Transparent"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                        Padding="16">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Insulina total" FontSize="13" TextColor="{StaticResource Gray500}"/>
+                        <Label Text="{Binding TotalInsulin}" FontSize="36" FontAttributes="Bold"
+                               TextColor="{StaticResource Gray600}"/>
+                        <Label Text="aplicada · 7 días" FontSize="11" TextColor="{StaticResource Gray400}"/>
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+
+            <Border StrokeShape="RoundRectangle 16" Stroke="Transparent"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource Tertiary}}"
+                    Padding="20">
+                <HorizontalStackLayout Spacing="12" HorizontalOptions="Center">
+                    <Label Text="📊" FontSize="24" VerticalOptions="Center"/>
+                    <VerticalStackLayout>
+                        <Label Text="{Binding TodaySummary}" FontSize="16" FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource White}}"/>
+                        <Label Text="{Binding StatusMessage}" FontSize="12"
+                               TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}"/>
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+            </Border>
+
+            <Border StrokeShape="RoundRectangle 16" Stroke="Transparent"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                    Padding="16">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Guía de rangos" FontSize="14" FontAttributes="Bold"
+                           TextColor="{StaticResource Gray600}"/>
+                    <HorizontalStackLayout Spacing="8">
+                        <BoxView WidthRequest="12" HeightRequest="12" CornerRadius="6"
+                                 Color="{StaticResource GlucoseLow}"/>
+                        <Label Text="Bajo (&lt; 70 mg/dL)" FontSize="12" TextColor="{StaticResource Gray500}"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="8">
+                        <BoxView WidthRequest="12" HeightRequest="12" CornerRadius="6"
+                                 Color="{StaticResource GlucoseInRange}"/>
+                        <Label Text="En rango (70 - 140 mg/dL)" FontSize="12" TextColor="{StaticResource Gray500}"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="8">
+                        <BoxView WidthRequest="12" HeightRequest="12" CornerRadius="6"
+                                 Color="{StaticResource GlucoseHigh}"/>
+                        <Label Text="Alto (140 - 250 mg/dL)" FontSize="12" TextColor="{StaticResource Gray500}"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="8">
+                        <BoxView WidthRequest="12" HeightRequest="12" CornerRadius="6"
+                                 Color="{StaticResource GlucoseVeryHigh}"/>
+                        <Label Text="Muy alto (&gt; 250 mg/dL)" FontSize="12" TextColor="{StaticResource Gray500}"/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

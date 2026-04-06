@@ -4,12 +4,25 @@ namespace Hummingbird.Services;
 
 public class InsulinCalculatorService
 {
-    public double CalculateDose(int glucose, AppConfig config)
+    public double CalculateDose(int glucose, AppConfig config, int carbohydrates = 0)
+    {
+        var correction = CalculateCorrectionDose(glucose, config);
+        var carbs = CalculateCarbDose(carbohydrates, config);
+        return Math.Round(correction + carbs, 1);
+    }
+
+    public double CalculateCorrectionDose(int glucose, AppConfig config)
     {
         if (glucose <= config.GlucoseTarget)
             return 0;
-
         return Math.Round((double)(glucose - config.GlucoseTarget) / config.CorrectionFactor, 1);
+    }
+
+    public double CalculateCarbDose(int carbohydrates, AppConfig config)
+    {
+        if (carbohydrates <= 0 || config.InsulinCarbRatio <= 0)
+            return 0;
+        return Math.Round((double)carbohydrates / config.InsulinCarbRatio, 1);
     }
 
     public string GetGlucoseStatus(int glucose, AppConfig config)

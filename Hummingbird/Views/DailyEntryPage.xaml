@@ -45,17 +45,44 @@
                         <Entry Keyboard="Numeric" Text="{Binding GlucoseText}" Placeholder="Ej: 120"/>
                     </VerticalStackLayout>
 
-                    <VerticalStackLayout Spacing="4">
+                    <VerticalStackLayout Spacing="4" IsVisible="{Binding ShowCarbohydrates}">
                         <Label Text="🍞 Carbohidratos (g)" FontSize="13" TextColor="{StaticResource Gray500}"/>
-                        <Entry Keyboard="Numeric" Text="{Binding CarbohydratesText}" Placeholder="Opcional"/>
+                        <Entry Keyboard="Numeric" Text="{Binding CarbohydratesText}" Placeholder="Ej: 45"/>
                     </VerticalStackLayout>
 
-                    <VerticalStackLayout Spacing="4">
+                    <HorizontalStackLayout Spacing="8" IsVisible="{Binding ShowExtras}">
+                        <Border StrokeShape="RoundRectangle 20" StrokeThickness="1"
+                                Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
+                                BackgroundColor="Transparent" Padding="10,6">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ToggleActivityCommand}"/>
+                            </Border.GestureRecognizers>
+                            <HorizontalStackLayout Spacing="4">
+                                <Label Text="🏃" FontSize="14"/>
+                                <Label Text="Actividad" FontSize="12"
+                                       TextColor="{StaticResource Gray500}" VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+                        </Border>
+                        <Border StrokeShape="RoundRectangle 20" StrokeThickness="1"
+                                Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
+                                BackgroundColor="Transparent" Padding="10,6">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ToggleNotesCommand}"/>
+                            </Border.GestureRecognizers>
+                            <HorizontalStackLayout Spacing="4">
+                                <Label Text="📝" FontSize="14"/>
+                                <Label Text="Notas" FontSize="12"
+                                       TextColor="{StaticResource Gray500}" VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+                        </Border>
+                    </HorizontalStackLayout>
+
+                    <VerticalStackLayout Spacing="4" IsVisible="{Binding ShowActivityInput}">
                         <Label Text="🏃 Actividad" FontSize="13" TextColor="{StaticResource Gray500}"/>
                         <Entry Text="{Binding Activity}" Placeholder="Ej: Caminata 30 min"/>
                     </VerticalStackLayout>
 
-                    <VerticalStackLayout Spacing="4">
+                    <VerticalStackLayout Spacing="4" IsVisible="{Binding ShowNotesInput}">
                         <Label Text="📝 Observaciones" FontSize="13" TextColor="{StaticResource Gray500}"/>
                         <Editor Text="{Binding Notes}" Placeholder="Notas adicionales..." HeightRequest="80"/>
                     </VerticalStackLayout>
@@ -65,23 +92,28 @@
             <!-- Insulin Calculator -->
             <Border StrokeShape="RoundRectangle 16" Stroke="Transparent"
                     BackgroundColor="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource Tertiary}}"
-                    Padding="16">
+                    Padding="16" IsVisible="{Binding ShowInsulinCalculator}">
                 <VerticalStackLayout Spacing="8">
                     <Label Text="🧮 Calculadora de Insulina" FontSize="16" FontAttributes="Bold"
                            TextColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource White}}"/>
 
                     <BoxView HeightRequest="1" Color="{AppThemeBinding Light=#0D948833, Dark=#FFFFFF33}"/>
 
-                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="6">
+                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="6">
                         <Label Grid.Row="0" Grid.Column="0" Text="Dosis sugerida:" FontSize="14"
                                TextColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource Secondary}}"/>
                         <Label Grid.Row="0" Grid.Column="1" Text="{Binding SuggestedDose, StringFormat='{0} u'}"
                                FontSize="20" FontAttributes="Bold"
                                TextColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource White}}"/>
 
-                        <Label Grid.Row="1" Grid.Column="0" Text="Estado:" FontSize="14"
+                        <Label Grid.Row="1" Grid.ColumnSpan="2"
+                               Text="{Binding DoseBreakdownText}" FontSize="12"
+                               IsVisible="{Binding ShowCarbohydrates}"
                                TextColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource Secondary}}"/>
-                        <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Spacing="6">
+
+                        <Label Grid.Row="2" Grid.Column="0" Text="Estado:" FontSize="14"
+                               TextColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource Secondary}}"/>
+                        <HorizontalStackLayout Grid.Row="2" Grid.Column="1" Spacing="6">
                             <Label Text="{Binding GlucoseStatus}" FontSize="14" FontAttributes="Bold"
                                    TextColor="{Binding GlucoseStatusColor}"/>
                             <Label Text="{Binding DifferenceText}" FontSize="14"

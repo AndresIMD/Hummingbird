@@ -6,6 +6,22 @@ namespace Hummingbird.ViewModels;
 public class SettingsViewModel : BaseViewModel
 {
     private readonly DataService _dataService;
+    private readonly ThemeService _themeService;
+
+    public IReadOnlyList<Models.ThemeDefinition> AvailableThemes => _themeService.AvailableThemes;
+
+    private Models.ThemeDefinition _selectedTheme = null!;
+    public Models.ThemeDefinition SelectedTheme
+    {
+        get => _selectedTheme;
+        set
+        {
+            if (SetProperty(ref _selectedTheme, value) && value is not null)
+            {
+                _themeService.ApplyTheme(value);
+            }
+        }
+    }
 
     private string _glucoseTarget = "120";
     public string GlucoseTarget
@@ -49,9 +65,11 @@ public class SettingsViewModel : BaseViewModel
 
     public Command SaveCommand { get; }
 
-    public SettingsViewModel(DataService dataService)
+    public SettingsViewModel(DataService dataService, ThemeService themeService)
     {
         _dataService = dataService;
+        _themeService = themeService;
+        _selectedTheme = _themeService.CurrentTheme;
         Title = "Configuración";
         SaveCommand = new Command(async () => await SaveAsync());
     }

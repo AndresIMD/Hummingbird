@@ -10,6 +10,21 @@
             <Label Text="⚙️ Configuración" FontSize="24" FontAttributes="Bold"
                    TextColor="{StaticResource Primary}" Padding="0,8,0,0"/>
 
+            <!-- Theme Card -->
+            <Border StrokeShape="RoundRectangle 16" Stroke="Transparent"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                    Padding="16">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="🎨 Tema" FontSize="16" FontAttributes="Bold"/>
+                    <Label Text="Selecciona la paleta de colores (requiere reiniciar)" FontSize="12"
+                           TextColor="{StaticResource Gray400}"/>
+                    <Picker Title="Tema"
+                            ItemsSource="{Binding AvailableThemes}"
+                            SelectedItem="{Binding SelectedTheme}"
+                            ItemDisplayBinding="{Binding DisplayName}"/>
+                </VerticalStackLayout>
+            </Border>
+
             <!-- Formula Card -->
             <Border StrokeShape="RoundRectangle 16" Stroke="Transparent"
                     BackgroundColor="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource Tertiary}}"

@@ -20,6 +20,7 @@ namespace Hummingbird
             // Services
             builder.Services.AddSingleton<DataService>();
             builder.Services.AddSingleton<InsulinCalculatorService>();
+            builder.Services.AddSingleton<ThemeService>();
 
             // ViewModels
             builder.Services.AddTransient<DashboardViewModel>();

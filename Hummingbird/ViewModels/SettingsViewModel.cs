@@ -7,7 +7,6 @@ public class SettingsViewModel : BaseViewModel
 {
     private readonly DataService _dataService;
     private readonly ThemeService _themeService;
-    private bool _suppressAutoFill;
 
     public IReadOnlyList<Models.ThemeDefinition> AvailableThemes => _themeService.AvailableThemes;
 
@@ -36,40 +35,6 @@ public class SettingsViewModel : BaseViewModel
             }
         }
     }
-
-    private string _slowInsulinDose = "";
-    public string SlowInsulinDose
-    {
-        get => _slowInsulinDose;
-        set
-        {
-            if (SetProperty(ref _slowInsulinDose, value))
-                UpdateFSICalculation();
-        }
-    }
-
-    private string _rapidInsulinDose = "";
-    public string RapidInsulinDose
-    {
-        get => _rapidInsulinDose;
-        set
-        {
-            if (SetProperty(ref _rapidInsulinDose, value))
-                UpdateFSICalculation();
-        }
-    }
-
-    private string _calculatedTDD = "--";
-    public string CalculatedTDD { get => _calculatedTDD; set => SetProperty(ref _calculatedTDD, value); }
-
-    private string _calculatedFSI = "--";
-    public string CalculatedFSI { get => _calculatedFSI; set => SetProperty(ref _calculatedFSI, value); }
-
-    private string _calculatedRatio = "--";
-    public string CalculatedRatio { get => _calculatedRatio; set => SetProperty(ref _calculatedRatio, value); }
-
-    private bool _hasCalculatorValues;
-    public bool HasCalculatorValues { get => _hasCalculatorValues; set => SetProperty(ref _hasCalculatorValues, value); }
 
     private string _glucoseTarget = "120";
     public string GlucoseTarget
@@ -125,58 +90,19 @@ public class SettingsViewModel : BaseViewModel
 
     public async Task LoadAsync()
     {
-        _suppressAutoFill = true;
-        try
-        {
-            var config = await _dataService.GetConfigAsync();
-            GlucoseTarget = config.GlucoseTarget.ToString();
-            CorrectionFactor = config.CorrectionFactor.ToString();
-            RangeLow = config.RangeLow.ToString();
-            RangeHigh = config.RangeHigh.ToString();
-            RangeVeryHigh = config.RangeVeryHigh.ToString();
-            InsulinCarbRatio = config.InsulinCarbRatio.ToString("F0");
-            NightTarget = config.NightTarget.ToString();
-            SlowInsulinDose = config.SlowInsulinDose > 0 ? config.SlowInsulinDose.ToString("F0") : "";
-            RapidInsulinDose = config.RapidInsulinDose > 0 ? config.RapidInsulinDose.ToString("F0") : "";
-        }
-        finally
-        {
-            _suppressAutoFill = false;
-        }
+        var config = await _dataService.GetConfigAsync();
+        GlucoseTarget = config.GlucoseTarget.ToString();
+        CorrectionFactor = config.CorrectionFactor.ToString();
+        RangeLow = config.RangeLow.ToString();
+        RangeHigh = config.RangeHigh.ToString();
+        RangeVeryHigh = config.RangeVeryHigh.ToString();
+        InsulinCarbRatio = config.InsulinCarbRatio.ToString("F0");
+        NightTarget = config.NightTarget.ToString();
     }
 
     private void UpdateFormulaPreview()
     {
         FormulaPreview = $"(Glicemia - {GlucoseTarget}) / {CorrectionFactor} = Dosis";
-    }
-
-    private void UpdateFSICalculation()
-    {
-        if (double.TryParse(SlowInsulinDose, out var slow) && slow > 0 &&
-            double.TryParse(RapidInsulinDose, out var rapid) && rapid >= 0)
-        {
-            var tdd = slow + rapid;
-            var fsi = 1800.0 / tdd;
-            var ratio = 450.0 / tdd;
-
-            CalculatedTDD = $"{tdd:F0} u";
-            CalculatedFSI = $"{fsi:F0}";
-            CalculatedRatio = $"{ratio:F1}";
-            HasCalculatorValues = true;
-
-            if (!_suppressAutoFill)
-            {
-                CorrectionFactor = CalculatedFSI;
-                InsulinCarbRatio = CalculatedRatio;
-            }
-        }
-        else
-        {
-            CalculatedTDD = "--";
-            CalculatedFSI = "--";
-            CalculatedRatio = "--";
-            HasCalculatorValues = false;
-        }
     }
 
     private async Task SaveAsync()
@@ -189,9 +115,7 @@ public class SettingsViewModel : BaseViewModel
             RangeHigh = int.TryParse(RangeHigh, out var high) ? high : 140,
             RangeVeryHigh = int.TryParse(RangeVeryHigh, out var veryHigh) ? veryHigh : 250,
             InsulinCarbRatio = double.TryParse(InsulinCarbRatio, out var ratio) ? ratio : 10,
-            NightTarget = int.TryParse(NightTarget, out var nightTarget) ? nightTarget : 150,
-            SlowInsulinDose = double.TryParse(SlowInsulinDose, out var slow) ? slow : 0,
-            RapidInsulinDose = double.TryParse(RapidInsulinDose, out var rapid) ? rapid : 0
+            NightTarget = int.TryParse(NightTarget, out var nightTarget) ? nightTarget : 150
         };
 
         await _dataService.SaveConfigAsync(config);

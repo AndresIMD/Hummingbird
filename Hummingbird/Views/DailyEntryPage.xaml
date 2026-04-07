@@ -100,14 +100,14 @@
                     <BoxView HeightRequest="1" Color="{AppThemeBinding Light=#0D948833, Dark=#FFFFFF33}"/>
 
                     <Grid ColumnDefinitions="*,Auto">
-                        <Label Text="Corrección" FontSize="14"
+                        <Label Text="Bolo de corrección" FontSize="14"
                                TextColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource Secondary}}"/>
                         <Label Grid.Column="1" Text="{Binding CorrectionDoseText, StringFormat='{0} u'}" FontSize="14"
                                TextColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource White}}"/>
                     </Grid>
 
                     <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding ShowCarbohydrates}">
-                        <Label Text="Carbohidratos" FontSize="14"
+                        <Label Text="Bolo por comida" FontSize="14"
                                TextColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource Secondary}}"/>
                         <Label Grid.Column="1" Text="{Binding CarbDoseText, StringFormat='{0} u'}" FontSize="14"
                                TextColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource White}}"/>

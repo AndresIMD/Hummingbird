@@ -5,6 +5,7 @@ namespace Hummingbird.Services;
 public class ThemeService
 {
     private const string ThemePreferenceKey = "selected_theme_id";
+    private const string DarkModePreferenceKey = "is_dark_mode";
     private const string DefaultThemeId = "teal";
 
     private readonly List<ThemeDefinition> _themes =
@@ -69,10 +70,13 @@ public class ThemeService
 
     public ThemeDefinition CurrentTheme { get; private set; }
 
+    public bool IsDarkMode { get; private set; }
+
     public ThemeService()
     {
         var savedId = Preferences.Get(ThemePreferenceKey, DefaultThemeId);
         CurrentTheme = _themes.Find(t => t.Id == savedId) ?? _themes[0];
+        IsDarkMode = Preferences.Get(DarkModePreferenceKey, false);
     }
 
     public void ApplyTheme(ThemeDefinition? theme = null)
@@ -100,6 +104,21 @@ public class ThemeService
         SetBrush(resources, "PrimaryBrush", theme.Primary);
         SetBrush(resources, "SecondaryBrush", theme.Secondary);
         SetBrush(resources, "TertiaryBrush", theme.Tertiary);
+    }
+
+    public void SetDarkMode(bool isDark)
+    {
+        IsDarkMode = isDark;
+        Preferences.Set(DarkModePreferenceKey, isDark);
+        ApplyAppTheme();
+    }
+
+    public void ApplyAppTheme()
+    {
+        if (Application.Current is not null)
+        {
+            Application.Current.UserAppTheme = IsDarkMode ? AppTheme.Dark : AppTheme.Light;
+        }
     }
 
     private static void SetColor(ResourceDictionary resources, string key, string hex)

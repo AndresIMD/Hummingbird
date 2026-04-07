@@ -23,6 +23,19 @@ public class SettingsViewModel : BaseViewModel
         }
     }
 
+    private bool _isDarkMode;
+    public bool IsDarkMode
+    {
+        get => _isDarkMode;
+        set
+        {
+            if (SetProperty(ref _isDarkMode, value))
+            {
+                _themeService.SetDarkMode(value);
+            }
+        }
+    }
+
     private string _glucoseTarget = "120";
     public string GlucoseTarget
     {
@@ -70,6 +83,7 @@ public class SettingsViewModel : BaseViewModel
         _dataService = dataService;
         _themeService = themeService;
         _selectedTheme = _themeService.CurrentTheme;
+        _isDarkMode = _themeService.IsDarkMode;
         Title = "Configuración";
         SaveCommand = new Command(async () => await SaveAsync());
     }

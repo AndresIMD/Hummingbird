@@ -8,6 +8,7 @@ namespace Hummingbird
         {
             InitializeComponent();
             themeService.ApplyTheme();
+            themeService.ApplyAppTheme();
         }
 
         protected override Window CreateWindow(IActivationState? activationState)

@@ -73,8 +73,20 @@ public class DailyEntryViewModel : BaseViewModel
     private string _differenceText = "";
     public string DifferenceText { get => _differenceText; set => SetProperty(ref _differenceText, value); }
 
-    private string _doseBreakdownText = "";
-    public string DoseBreakdownText { get => _doseBreakdownText; set => SetProperty(ref _doseBreakdownText, value); }
+    private string _correctionDoseText = "0";
+    public string CorrectionDoseText { get => _correctionDoseText; set => SetProperty(ref _correctionDoseText, value); }
+
+    private string _carbDoseText = "0";
+    public string CarbDoseText { get => _carbDoseText; set => SetProperty(ref _carbDoseText, value); }
+
+    private string _safeDoseText = "0";
+    public string SafeDoseText { get => _safeDoseText; set => SetProperty(ref _safeDoseText, value); }
+
+    private bool _showSafeDose;
+    public bool ShowSafeDose { get => _showSafeDose; set => SetProperty(ref _showSafeDose, value); }
+
+    private string _nightTargetText = "";
+    public string NightTargetText { get => _nightTargetText; set => SetProperty(ref _nightTargetText, value); }
 
     private bool _showCarbohydrates;
     public bool ShowCarbohydrates { get => _showCarbohydrates; set => SetProperty(ref _showCarbohydrates, value); }
@@ -124,6 +136,7 @@ public class DailyEntryViewModel : BaseViewModel
         ShowCarbohydrates = isPreprandial;
         ShowInsulinCalculator = true;
         ShowExtras = !isUnique;
+        ShowSafeDose = type == MeasurementTypes.PreDinner;
         ShowActivityInput = false;
         ShowNotesInput = false;
 
@@ -145,8 +158,17 @@ public class DailyEntryViewModel : BaseViewModel
             SuggestedDose = $"{dose:F1}";
 
             var correctionDose = _calculatorService.CalculateCorrectionDose(glucose, _config);
+            CorrectionDoseText = $"{correctionDose:F1}";
+
             var carbDose = _calculatorService.CalculateCarbDose(carbs, _config);
-            DoseBreakdownText = $"Corrección: {correctionDose:F1} u · Carbohidratos: {carbDose:F1} u";
+            CarbDoseText = $"{carbDose:F1}";
+
+            if (ShowSafeDose)
+            {
+                var safeDose = _calculatorService.CalculateSafeDose(glucose, _config, carbs);
+                SafeDoseText = $"{safeDose:F1}";
+                NightTargetText = $"objetivo nocturno: {_config.NightTarget} mg/dL";
+            }
 
             GlucoseStatus = _calculatorService.GetGlucoseStatus(glucose, _config);
             GlucoseStatusColor = _calculatorService.GetGlucoseColor(glucose, _config);
@@ -156,7 +178,9 @@ public class DailyEntryViewModel : BaseViewModel
         else
         {
             SuggestedDose = "0";
-            DoseBreakdownText = "";
+            CorrectionDoseText = "0";
+            CarbDoseText = "0";
+            SafeDoseText = "0";
             GlucoseStatus = "";
             GlucoseStatusColor = Colors.Gray;
             DifferenceText = "";

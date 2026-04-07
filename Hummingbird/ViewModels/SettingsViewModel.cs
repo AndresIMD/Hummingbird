@@ -41,6 +41,9 @@ public class SettingsViewModel : BaseViewModel
     private string _insulinCarbRatio = "10";
     public string InsulinCarbRatio { get => _insulinCarbRatio; set => SetProperty(ref _insulinCarbRatio, value); }
 
+    private string _nightTarget = "150";
+    public string NightTarget { get => _nightTarget; set => SetProperty(ref _nightTarget, value); }
+
     private string _formulaPreview = "(Glicemia - 120) / 60 = Dosis";
     public string FormulaPreview { get => _formulaPreview; set => SetProperty(ref _formulaPreview, value); }
 
@@ -62,6 +65,7 @@ public class SettingsViewModel : BaseViewModel
         RangeHigh = config.RangeHigh.ToString();
         RangeVeryHigh = config.RangeVeryHigh.ToString();
         InsulinCarbRatio = config.InsulinCarbRatio.ToString("F0");
+        NightTarget = config.NightTarget.ToString();
     }
 
     private void UpdateFormulaPreview()
@@ -78,7 +82,8 @@ public class SettingsViewModel : BaseViewModel
             RangeLow = int.TryParse(RangeLow, out var low) ? low : 70,
             RangeHigh = int.TryParse(RangeHigh, out var high) ? high : 140,
             RangeVeryHigh = int.TryParse(RangeVeryHigh, out var veryHigh) ? veryHigh : 250,
-            InsulinCarbRatio = double.TryParse(InsulinCarbRatio, out var ratio) ? ratio : 10
+            InsulinCarbRatio = double.TryParse(InsulinCarbRatio, out var ratio) ? ratio : 10,
+            NightTarget = int.TryParse(NightTarget, out var nightTarget) ? nightTarget : 150
         };
 
         await _dataService.SaveConfigAsync(config);

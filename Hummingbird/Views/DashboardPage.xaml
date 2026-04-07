@@ -85,22 +85,22 @@
                     <HorizontalStackLayout Spacing="8">
                         <BoxView WidthRequest="12" HeightRequest="12" CornerRadius="6"
                                  Color="{StaticResource GlucoseLow}"/>
-                        <Label Text="Bajo (&lt; 70 mg/dL)" FontSize="12" TextColor="{StaticResource Gray500}"/>
+                        <Label Text="{Binding RangeLowText}" FontSize="12" TextColor="{StaticResource Gray500}"/>
                     </HorizontalStackLayout>
                     <HorizontalStackLayout Spacing="8">
                         <BoxView WidthRequest="12" HeightRequest="12" CornerRadius="6"
                                  Color="{StaticResource GlucoseInRange}"/>
-                        <Label Text="En rango (70 - 140 mg/dL)" FontSize="12" TextColor="{StaticResource Gray500}"/>
+                        <Label Text="{Binding RangeInRangeText}" FontSize="12" TextColor="{StaticResource Gray500}"/>
                     </HorizontalStackLayout>
                     <HorizontalStackLayout Spacing="8">
                         <BoxView WidthRequest="12" HeightRequest="12" CornerRadius="6"
                                  Color="{StaticResource GlucoseHigh}"/>
-                        <Label Text="Alto (140 - 250 mg/dL)" FontSize="12" TextColor="{StaticResource Gray500}"/>
+                        <Label Text="{Binding RangeHighText}" FontSize="12" TextColor="{StaticResource Gray500}"/>
                     </HorizontalStackLayout>
                     <HorizontalStackLayout Spacing="8">
                         <BoxView WidthRequest="12" HeightRequest="12" CornerRadius="6"
                                  Color="{StaticResource GlucoseVeryHigh}"/>
-                        <Label Text="Muy alto (&gt; 250 mg/dL)" FontSize="12" TextColor="{StaticResource Gray500}"/>
+                        <Label Text="{Binding RangeVeryHighText}" FontSize="12" TextColor="{StaticResource Gray500}"/>
                     </HorizontalStackLayout>
                 </VerticalStackLayout>
             </Border>

@@ -8,4 +8,5 @@ public class AppConfig
     public int RangeHigh { get; set; } = 140;
     public int RangeVeryHigh { get; set; } = 250;
     public double InsulinCarbRatio { get; set; } = 10;
+    public int NightTarget { get; set; } = 150;
 }

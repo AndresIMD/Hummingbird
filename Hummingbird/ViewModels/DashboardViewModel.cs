@@ -31,6 +31,18 @@ public class DashboardViewModel : BaseViewModel
     private string _statusMessage = "Cargando...";
     public string StatusMessage { get => _statusMessage; set => SetProperty(ref _statusMessage, value); }
 
+    private string _rangeLowText = "Bajo (< 70 mg/dL)";
+    public string RangeLowText { get => _rangeLowText; set => SetProperty(ref _rangeLowText, value); }
+
+    private string _rangeInRangeText = "En rango (70 - 140 mg/dL)";
+    public string RangeInRangeText { get => _rangeInRangeText; set => SetProperty(ref _rangeInRangeText, value); }
+
+    private string _rangeHighText = "Alto (140 - 250 mg/dL)";
+    public string RangeHighText { get => _rangeHighText; set => SetProperty(ref _rangeHighText, value); }
+
+    private string _rangeVeryHighText = "Muy alto (> 250 mg/dL)";
+    public string RangeVeryHighText { get => _rangeVeryHighText; set => SetProperty(ref _rangeVeryHighText, value); }
+
     public DashboardViewModel(DataService dataService, InsulinCalculatorService calculatorService)
     {
         _dataService = dataService;
@@ -48,6 +60,11 @@ public class DashboardViewModel : BaseViewModel
             var readings = await _dataService.GetReadingsAsync();
             var config = await _dataService.GetConfigAsync();
             var now = DateTime.Now;
+
+            RangeLowText = $"Bajo (< {config.RangeLow} mg/dL)";
+            RangeInRangeText = $"En rango ({config.RangeLow} - {config.RangeHigh} mg/dL)";
+            RangeHighText = $"Alto ({config.RangeHigh} - {config.RangeVeryHigh} mg/dL)";
+            RangeVeryHighText = $"Muy alto (> {config.RangeVeryHigh} mg/dL)";
             var last7Days = readings.Where(r => r.FullDateTime >= now.AddDays(-7)).ToList();
             var today = readings.Where(r => r.Date.Date == DateTime.Today).ToList();
 

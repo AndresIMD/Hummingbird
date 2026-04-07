@@ -25,6 +25,15 @@ public class InsulinCalculatorService
         return Math.Round((double)carbohydrates / config.InsulinCarbRatio, 1);
     }
 
+    public double CalculateSafeDose(int glucose, AppConfig config, int carbohydrates = 0)
+    {
+        double correctionDose = glucose > config.NightTarget
+            ? (double)(glucose - config.NightTarget) / config.CorrectionFactor
+            : 0;
+        double carbDose = CalculateCarbDose(carbohydrates, config);
+        return Math.Round(correctionDose + carbDose, 1);
+    }
+
     public string GetGlucoseStatus(int glucose, AppConfig config)
     {
         if (glucose < config.RangeLow) return "Bajo";

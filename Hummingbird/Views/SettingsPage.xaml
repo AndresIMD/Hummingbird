@@ -84,6 +84,11 @@
                         <Label Text="Ratio insulina/carbohidratos" FontSize="13" TextColor="{StaticResource Gray500}"/>
                         <Entry Keyboard="Numeric" Text="{Binding InsulinCarbRatio}"/>
                     </VerticalStackLayout>
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="🛡️ Objetivo nocturno (mg/dL)" FontSize="13" TextColor="{StaticResource Gray500}"/>
+                        <Label Text="Usado en pre-cena para prevenir hipoglicemia nocturna" FontSize="11" TextColor="{StaticResource Gray400}"/>
+                        <Entry Keyboard="Numeric" Text="{Binding NightTarget}"/>
+                    </VerticalStackLayout>
                 </VerticalStackLayout>
             </Border>
 

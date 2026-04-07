@@ -73,10 +73,45 @@ public class SettingsViewModel : BaseViewModel
     private string _nightTarget = "150";
     public string NightTarget { get => _nightTarget; set => SetProperty(ref _nightTarget, value); }
 
+    private string _slowInsulinDose = "";
+    public string SlowInsulinDose
+    {
+        get => _slowInsulinDose;
+        set
+        {
+            if (SetProperty(ref _slowInsulinDose, value))
+                UpdateFSICalculation();
+        }
+    }
+
+    private string _rapidInsulinDose = "";
+    public string RapidInsulinDose
+    {
+        get => _rapidInsulinDose;
+        set
+        {
+            if (SetProperty(ref _rapidInsulinDose, value))
+                UpdateFSICalculation();
+        }
+    }
+
+    private string _calculatedTDD = "--";
+    public string CalculatedTDD { get => _calculatedTDD; set => SetProperty(ref _calculatedTDD, value); }
+
+    private string _calculatedFSI = "--";
+    public string CalculatedFSI { get => _calculatedFSI; set => SetProperty(ref _calculatedFSI, value); }
+
+    private string _calculatedRatio = "--";
+    public string CalculatedRatio { get => _calculatedRatio; set => SetProperty(ref _calculatedRatio, value); }
+
+    private bool _canApplyCalculated;
+    public bool CanApplyCalculated { get => _canApplyCalculated; set => SetProperty(ref _canApplyCalculated, value); }
+
     private string _formulaPreview = "(Glicemia - 120) / 60 = Dosis";
     public string FormulaPreview { get => _formulaPreview; set => SetProperty(ref _formulaPreview, value); }
 
     public Command SaveCommand { get; }
+    public Command ApplyCalculatedValuesCommand { get; }
 
     public SettingsViewModel(DataService dataService, ThemeService themeService)
     {
@@ -86,6 +121,7 @@ public class SettingsViewModel : BaseViewModel
         _isDarkMode = _themeService.IsDarkMode;
         Title = "Configuración";
         SaveCommand = new Command(async () => await SaveAsync());
+        ApplyCalculatedValuesCommand = new Command(ApplyCalculatedValues);
     }
 
     public async Task LoadAsync()
@@ -103,6 +139,37 @@ public class SettingsViewModel : BaseViewModel
     private void UpdateFormulaPreview()
     {
         FormulaPreview = $"(Glicemia - {GlucoseTarget}) / {CorrectionFactor} = Dosis";
+    }
+
+    private void UpdateFSICalculation()
+    {
+        if (double.TryParse(SlowInsulinDose, out var slow) && slow > 0 &&
+            double.TryParse(RapidInsulinDose, out var rapid) && rapid >= 0)
+        {
+            var tdd = slow + rapid;
+            var fsi = 1800.0 / tdd;
+            var ratio = 450.0 / tdd;
+
+            CalculatedTDD = $"{tdd:F0} u";
+            CalculatedFSI = $"{fsi:F0}";
+            CalculatedRatio = $"{ratio:F1}";
+            CanApplyCalculated = true;
+        }
+        else
+        {
+            CalculatedTDD = "--";
+            CalculatedFSI = "--";
+            CalculatedRatio = "--";
+            CanApplyCalculated = false;
+        }
+    }
+
+    private void ApplyCalculatedValues()
+    {
+        if (!CanApplyCalculated) return;
+
+        CorrectionFactor = CalculatedFSI;
+        InsulinCarbRatio = CalculatedRatio;
     }
 
     private async Task SaveAsync()

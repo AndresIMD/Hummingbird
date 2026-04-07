@@ -63,6 +63,61 @@
                 </VerticalStackLayout>
             </Border>
 
+            <!-- FSI & Ratio Calculator Card -->
+            <Border StrokeShape="RoundRectangle 16" Stroke="Transparent"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                    Padding="16">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="🔬 Calculadora FSI y Ratio" FontSize="16" FontAttributes="Bold"/>
+                    <Label Text="Regla del 1800 (FSI) y Regla del 450 (Ratio) para insulina ultra rápida"
+                           FontSize="11" TextColor="{StaticResource Gray400}"/>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <VerticalStackLayout Grid.Column="0" Spacing="4">
+                            <Label Text="Insulina lenta (u/día)" FontSize="13" TextColor="{StaticResource Gray500}"/>
+                            <Entry Keyboard="Numeric" Text="{Binding SlowInsulinDose}" Placeholder="Ej: 20"/>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                            <Label Text="Bolos rápida (u/día)" FontSize="13" TextColor="{StaticResource Gray500}"/>
+                            <Entry Keyboard="Numeric" Text="{Binding RapidInsulinDose}" Placeholder="Ej: 15"/>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray600}}"
+                             Margin="0,4"/>
+
+                    <!-- Results -->
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                        <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center" Spacing="2">
+                            <Label Text="TDD" FontSize="11" TextColor="{StaticResource Gray400}" HorizontalTextAlignment="Center"/>
+                            <Label Text="{Binding CalculatedTDD}" FontSize="16" FontAttributes="Bold"
+                                   HorizontalTextAlignment="Center"/>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="2">
+                            <Label Text="FSI" FontSize="11" TextColor="{StaticResource Gray400}" HorizontalTextAlignment="Center"/>
+                            <Label Text="{Binding CalculatedFSI}" FontSize="16" FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource Secondary}}"
+                                   HorizontalTextAlignment="Center"/>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center" Spacing="2">
+                            <Label Text="Ratio" FontSize="11" TextColor="{StaticResource Gray400}" HorizontalTextAlignment="Center"/>
+                            <Label Text="{Binding CalculatedRatio}" FontSize="16" FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource Secondary}}"
+                                   HorizontalTextAlignment="Center"/>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <Label Text="FSI = 1800 / TDD  •  Ratio = 450 / TDD" FontSize="10"
+                           TextColor="{StaticResource Gray400}" HorizontalTextAlignment="Center"/>
+
+                    <Button Text="📋 Aplicar a configuración" Command="{Binding ApplyCalculatedValuesCommand}"
+                            IsVisible="{Binding CanApplyCalculated}"
+                            FontSize="13" HeightRequest="40" CornerRadius="12"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource Tertiary}}"
+                            TextColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource Secondary}}"/>
+                </VerticalStackLayout>
+            </Border>
+
             <!-- Ranges Card -->
             <Border StrokeShape="RoundRectangle 16" Stroke="Transparent"
                     BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"

@@ -122,7 +122,7 @@ public class DailyEntryViewModel : BaseViewModel
         bool isPreprandial = MeasurementTypes.IsPreprandial(type);
 
         ShowCarbohydrates = isPreprandial;
-        ShowInsulinCalculator = !isUnique;
+        ShowInsulinCalculator = true;
         ShowExtras = !isUnique;
         ShowActivityInput = false;
         ShowNotesInput = false;

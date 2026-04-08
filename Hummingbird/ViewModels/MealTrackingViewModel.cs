@@ -31,6 +31,25 @@ public class MealPairSummary : BaseViewModel
     public string DeltaText { get => _deltaText; set => SetProperty(ref _deltaText, value); }
 }
 
+public class MealDayDetail
+{
+    public string DayLabel { get; set; } = "";
+    public string PreGlucose { get; set; } = "--";
+    public string PostGlucose { get; set; } = "--";
+    public Color PreColor { get; set; } = Colors.Gray;
+    public Color PostColor { get; set; } = Colors.Gray;
+    public string DeltaText { get; set; } = "";
+}
+
+public class MealWeekSection
+{
+    public string MealName { get; set; } = "";
+    public string MealEmoji { get; set; } = "";
+    public List<MealDayDetail> Days { get; set; } = [];
+    public bool NoData { get; set; } = true;
+    public bool HasData { get; set; }
+}
+
 public class MealTrackingViewModel : BaseViewModel
 {
     private readonly DataService _dataService;
@@ -54,11 +73,24 @@ public class MealTrackingViewModel : BaseViewModel
     private string _periodSummary = "";
     public string PeriodSummary { get => _periodSummary; set => SetProperty(ref _periodSummary, value); }
 
+    public ObservableCollection<MealWeekSection> WeekMealDetails { get; } = [];
+
+    private DateTime _weekStart;
+
+    private string _weekLabel = "";
+    public string WeekLabel { get => _weekLabel; set => SetProperty(ref _weekLabel, value); }
+
+    public Command PreviousWeekCommand { get; }
+    public Command NextWeekCommand { get; }
+
     public MealTrackingViewModel(DataService dataService, InsulinCalculatorService calculatorService)
     {
         _dataService = dataService;
         _calculatorService = calculatorService;
         Title = "Seguimiento";
+        _weekStart = GetMonday(DateTime.Today);
+        PreviousWeekCommand = new Command(() => { _weekStart = _weekStart.AddDays(-7); _ = LoadDataAsync(); });
+        NextWeekCommand = new Command(() => { _weekStart = _weekStart.AddDays(7); _ = LoadDataAsync(); });
     }
 
     public async Task LoadDataAsync()
@@ -114,10 +146,87 @@ public class MealTrackingViewModel : BaseViewModel
             var totalPre = filtered.Count(r => MeasurementTypes.IsPreprandial(r.MeasurementType));
             var totalPost = filtered.Count(r => MeasurementTypes.IsPostprandial(r.MeasurementType));
             PeriodSummary = $"{totalPre} preprandiales · {totalPost} postprandiales";
+
+            LoadWeekDetails(allReadings, config);
         }
         finally
         {
             IsBusy = false;
+        }
+    }
+
+    private static DateTime GetMonday(DateTime date)
+    {
+        var diff = (7 + (date.DayOfWeek - DayOfWeek.Monday)) % 7;
+        return date.AddDays(-diff).Date;
+    }
+
+    private void LoadWeekDetails(IEnumerable<GlucoseReading> allReadings, AppConfig config)
+    {
+        var weekEnd = _weekStart.AddDays(6);
+        WeekLabel = $"{_weekStart:dd MMM} – {weekEnd:dd MMM yyyy}";
+
+        var weekReadings = allReadings
+            .Where(r => r.Date.Date >= _weekStart && r.Date.Date <= weekEnd)
+            .ToList();
+
+        var meals = new[]
+        {
+            ("Desayuno", "🌅", MeasurementTypes.PreBreakfast, MeasurementTypes.PostBreakfast),
+            ("Almuerzo", "☀️", MeasurementTypes.PreLunch, MeasurementTypes.PostLunch),
+            ("Cena", "🌙", MeasurementTypes.PreDinner, MeasurementTypes.PostDinner)
+        };
+
+        WeekMealDetails.Clear();
+        foreach (var (name, emoji, preType, postType) in meals)
+        {
+            var section = new MealWeekSection { MealName = name, MealEmoji = emoji };
+            var days = new List<MealDayDetail>();
+            bool hasAny = false;
+
+            for (int i = 0; i < 7; i++)
+            {
+                var date = _weekStart.AddDays(i);
+                var preReading = weekReadings
+                    .Where(r => r.Date.Date == date && r.MeasurementType == preType)
+                    .OrderByDescending(r => r.Time)
+                    .FirstOrDefault();
+                var postReading = weekReadings
+                    .Where(r => r.Date.Date == date && r.MeasurementType == postType)
+                    .OrderByDescending(r => r.Time)
+                    .FirstOrDefault();
+
+                if (preReading is null && postReading is null)
+                    continue;
+
+                hasAny = true;
+                int? preGlucose = preReading?.Glucose;
+                int? postGlucose = postReading?.Glucose;
+                int? delta = (preGlucose.HasValue && postGlucose.HasValue)
+                    ? postGlucose.Value - preGlucose.Value
+                    : null;
+
+                days.Add(new MealDayDetail
+                {
+                    DayLabel = date.ToString("ddd dd"),
+                    PreGlucose = preGlucose?.ToString() ?? "--",
+                    PostGlucose = postGlucose?.ToString() ?? "--",
+                    PreColor = preGlucose.HasValue
+                        ? _calculatorService.GetGlucoseColor(preGlucose.Value, config)
+                        : Colors.Gray,
+                    PostColor = postGlucose.HasValue
+                        ? _calculatorService.GetGlucoseColor(postGlucose.Value, config)
+                        : Colors.Gray,
+                    DeltaText = delta.HasValue
+                        ? (delta.Value >= 0 ? $"+{delta.Value}" : $"{delta.Value}")
+                        : ""
+                });
+            }
+
+            section.Days = days;
+            section.NoData = !hasAny;
+            section.HasData = hasAny;
+            WeekMealDetails.Add(section);
         }
     }
 }

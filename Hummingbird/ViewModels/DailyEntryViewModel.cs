@@ -97,6 +97,9 @@ public class DailyEntryViewModel : BaseViewModel
     private bool _showExtras;
     public bool ShowExtras { get => _showExtras; set => SetProperty(ref _showExtras, value); }
 
+    private bool _showActivityChip;
+    public bool ShowActivityChip { get => _showActivityChip; set => SetProperty(ref _showActivityChip, value); }
+
     private bool _showActivityInput;
     public bool ShowActivityInput { get => _showActivityInput; set => SetProperty(ref _showActivityInput, value); }
 
@@ -136,12 +139,16 @@ public class DailyEntryViewModel : BaseViewModel
         ShowCarbohydrates = isPreprandial;
         ShowInsulinCalculator = true;
         ShowExtras = true;
+        ShowActivityChip = !isUnique;
         ShowSafeDose = type == MeasurementTypes.PreDinner;
         ShowActivityInput = false;
         ShowNotesInput = false;
 
         if (!ShowCarbohydrates)
             CarbohydratesText = "";
+
+        if (isUnique)
+            Activity = "";
     }
 
     private void UpdateCalculation()

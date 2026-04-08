@@ -73,21 +73,8 @@ public class MealTrackingViewModel : BaseViewModel
 
     public ObservableCollection<MealCard> MealCards { get; } = [];
 
-    public List<string> Periods { get; } = ["Hoy", "Última semana", "Último mes", "Todo"];
-
-    private string _selectedPeriod = "Última semana";
-    public string SelectedPeriod
-    {
-        get => _selectedPeriod;
-        set
-        {
-            if (SetProperty(ref _selectedPeriod, value))
-                _ = LoadDataAsync();
-        }
-    }
-
-    private string _periodSummary = "";
-    public string PeriodSummary { get => _periodSummary; set => SetProperty(ref _periodSummary, value); }
+    private string _weekSummary = "";
+    public string WeekSummary { get => _weekSummary; set => SetProperty(ref _weekSummary, value); }
 
     private DateTime _weekStart;
 
@@ -116,15 +103,12 @@ public class MealTrackingViewModel : BaseViewModel
         {
             var allReadings = await _dataService.GetReadingsAsync();
             var config = await _dataService.GetConfigAsync();
-            var now = DateTime.Now;
 
-            var filtered = SelectedPeriod switch
-            {
-                "Hoy" => allReadings.Where(r => r.Date.Date == DateTime.Today).ToList(),
-                "Última semana" => allReadings.Where(r => r.FullDateTime >= now.AddDays(-7)).ToList(),
-                "Último mes" => allReadings.Where(r => r.FullDateTime >= now.AddMonths(-1)).ToList(),
-                _ => allReadings.ToList()
-            };
+            var weekEnd = _weekStart.AddDays(6);
+            WeekLabel = $"{_weekStart:dd MMM} – {weekEnd:dd MMM yyyy}";
+            var weekReadings = allReadings
+                .Where(r => r.Date.Date >= _weekStart && r.Date.Date <= weekEnd)
+                .ToList();
 
             var meals = new[]
             {
@@ -135,17 +119,11 @@ public class MealTrackingViewModel : BaseViewModel
 
             var expandedMeals = MealCards.Where(c => c.IsExpanded).Select(c => c.MealName).ToHashSet();
 
-            var weekEnd = _weekStart.AddDays(6);
-            WeekLabel = $"{_weekStart:dd MMM} – {weekEnd:dd MMM yyyy}";
-            var weekReadings = allReadings
-                .Where(r => r.Date.Date >= _weekStart && r.Date.Date <= weekEnd)
-                .ToList();
-
             MealCards.Clear();
             foreach (var (name, emoji, preType, postType) in meals)
             {
-                var preReadings = filtered.Where(r => r.MeasurementType == preType).ToList();
-                var postReadings = filtered.Where(r => r.MeasurementType == postType).ToList();
+                var preReadings = weekReadings.Where(r => r.MeasurementType == preType).ToList();
+                var postReadings = weekReadings.Where(r => r.MeasurementType == postType).ToList();
 
                 var preAvg = preReadings.Count > 0 ? preReadings.Average(r => r.Glucose) : 0;
                 var postAvg = postReadings.Count > 0 ? postReadings.Average(r => r.Glucose) : 0;
@@ -212,9 +190,9 @@ public class MealTrackingViewModel : BaseViewModel
                 });
             }
 
-            var totalPre = filtered.Count(r => MeasurementTypes.IsPreprandial(r.MeasurementType));
-            var totalPost = filtered.Count(r => MeasurementTypes.IsPostprandial(r.MeasurementType));
-            PeriodSummary = $"{totalPre} preprandiales · {totalPost} postprandiales";
+            var totalPre = weekReadings.Count(r => MeasurementTypes.IsPreprandial(r.MeasurementType));
+            var totalPost = weekReadings.Count(r => MeasurementTypes.IsPostprandial(r.MeasurementType));
+            WeekSummary = $"{totalPre} preprandiales · {totalPost} postprandiales";
         }
         finally
         {

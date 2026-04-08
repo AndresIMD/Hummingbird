@@ -10,20 +10,6 @@
             <Label Text="📊 Seguimiento de Comidas" FontSize="24" FontAttributes="Bold"
                    TextColor="{StaticResource Primary}" Padding="0,8,0,0"/>
 
-            <!-- Period Picker -->
-            <Border StrokeShape="RoundRectangle 12" Stroke="Transparent"
-                    BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
-                    Padding="12">
-                <HorizontalStackLayout Spacing="8">
-                    <Label Text="📅 Período:" FontSize="14" VerticalOptions="Center"/>
-                    <Picker ItemsSource="{Binding Periods}"
-                            SelectedItem="{Binding SelectedPeriod, Mode=TwoWay}"
-                            HorizontalOptions="FillAndExpand"/>
-                </HorizontalStackLayout>
-            </Border>
-
-            <Label Text="{Binding PeriodSummary}" FontSize="13" TextColor="{StaticResource Gray500}"/>
-
             <!-- Week Navigation -->
             <Border StrokeShape="RoundRectangle 12" Stroke="Transparent"
                     BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
@@ -39,6 +25,8 @@
                             FontSize="18" WidthRequest="44" HeightRequest="40" Padding="0"/>
                 </Grid>
             </Border>
+
+            <Label Text="{Binding WeekSummary}" FontSize="13" TextColor="{StaticResource Gray500}"/>
 
             <!-- Meal Cards -->
             <VerticalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding MealCards}">

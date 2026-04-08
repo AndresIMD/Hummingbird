@@ -24,25 +24,48 @@
 
             <Label Text="{Binding PeriodSummary}" FontSize="13" TextColor="{StaticResource Gray500}"/>
 
-            <!-- Meal Pair Cards -->
-            <CollectionView ItemsSource="{Binding MealSummaries}">
-                <CollectionView.ItemTemplate>
+            <!-- Week Navigation -->
+            <Border StrokeShape="RoundRectangle 12" Stroke="Transparent"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                    Padding="8">
+                <Grid ColumnDefinitions="44,*,44">
+                    <Button Grid.Column="0" Text="◀" Command="{Binding PreviousWeekCommand}"
+                            BackgroundColor="Transparent" TextColor="{StaticResource Primary}"
+                            FontSize="18" WidthRequest="44" HeightRequest="40" Padding="0"/>
+                    <Label Grid.Column="1" Text="{Binding WeekLabel}" FontSize="14" FontAttributes="Bold"
+                           HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                    <Button Grid.Column="2" Text="▶" Command="{Binding NextWeekCommand}"
+                            BackgroundColor="Transparent" TextColor="{StaticResource Primary}"
+                            FontSize="18" WidthRequest="44" HeightRequest="40" Padding="0"/>
+                </Grid>
+            </Border>
+
+            <!-- Meal Cards -->
+            <VerticalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding MealCards}">
+                <BindableLayout.ItemTemplate>
                     <DataTemplate>
                         <Border StrokeShape="RoundRectangle 16" Stroke="Transparent"
                                 BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
-                                Padding="16" Margin="0,4">
+                                Padding="16">
                             <VerticalStackLayout Spacing="12">
 
-                                <HorizontalStackLayout Spacing="8">
-                                    <Label Text="{Binding MealEmoji}" FontSize="20"/>
-                                    <Label Text="{Binding MealName}" FontSize="18" FontAttributes="Bold"
-                                           VerticalOptions="Center"/>
-                                </HorizontalStackLayout>
+                                <!-- Header: emoji + name + expand button -->
+                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                    <HorizontalStackLayout Grid.Column="0" Spacing="8">
+                                        <Label Text="{Binding MealEmoji}" FontSize="20"/>
+                                        <Label Text="{Binding MealName}" FontSize="18" FontAttributes="Bold"
+                                               VerticalOptions="Center"/>
+                                    </HorizontalStackLayout>
+                                    <Button Grid.Column="2" Text="{Binding ExpandIcon}"
+                                            Command="{Binding ToggleExpandCommand}"
+                                            BackgroundColor="Transparent" TextColor="{StaticResource Primary}"
+                                            FontSize="14" WidthRequest="40" HeightRequest="36" Padding="0"/>
+                                </Grid>
 
                                 <BoxView HeightRequest="1" Color="{StaticResource Gray100}"/>
 
+                                <!-- Summary: Pre → Post -->
                                 <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="12">
-                                    <!-- Pre -->
                                     <VerticalStackLayout Grid.Column="0" Spacing="2" HorizontalOptions="Center">
                                         <Label Text="Pre" FontSize="13" TextColor="{StaticResource Gray500}"
                                                HorizontalTextAlignment="Center"/>
@@ -55,7 +78,6 @@
                                                HorizontalTextAlignment="Center"/>
                                     </VerticalStackLayout>
 
-                                    <!-- Delta Arrow -->
                                     <VerticalStackLayout Grid.Column="1" VerticalOptions="Center"
                                                          HorizontalOptions="Center" Spacing="2">
                                         <Label Text="→" FontSize="20" TextColor="{StaticResource Gray400}"
@@ -64,7 +86,6 @@
                                                TextColor="{StaticResource Gray500}" HorizontalTextAlignment="Center"/>
                                     </VerticalStackLayout>
 
-                                    <!-- Post -->
                                     <VerticalStackLayout Grid.Column="2" Spacing="2" HorizontalOptions="Center">
                                         <Label Text="Post" FontSize="13" TextColor="{StaticResource Gray500}"
                                                HorizontalTextAlignment="Center"/>
@@ -78,62 +99,10 @@
                                     </VerticalStackLayout>
                                 </Grid>
 
-                            </VerticalStackLayout>
-                        </Border>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
+                                <!-- Expandable Detail -->
+                                <VerticalStackLayout Spacing="4" IsVisible="{Binding IsExpanded}">
+                                    <BoxView HeightRequest="1" Color="{StaticResource Gray100}" Margin="0,4"/>
 
-                <CollectionView.EmptyView>
-                    <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center"
-                                         Spacing="8" Padding="40">
-                        <Label Text="🍽️" FontSize="48" HorizontalOptions="Center"/>
-                        <Label Text="Sin datos de comidas" FontSize="18" FontAttributes="Bold"
-                               HorizontalOptions="Center"/>
-                        <Label Text="Registra mediciones pre y post comida para ver el análisis"
-                               FontSize="14" TextColor="{StaticResource Gray500}"
-                               HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
-                    </VerticalStackLayout>
-                </CollectionView.EmptyView>
-            </CollectionView>
-
-            <!-- Weekly Detail Section -->
-            <VerticalStackLayout Spacing="12" Margin="0,8,0,0">
-                <Label Text="📋 Detalle Semanal" FontSize="18" FontAttributes="Bold"
-                       TextColor="{StaticResource Primary}"/>
-
-                <!-- Week Navigation -->
-                <Border StrokeShape="RoundRectangle 12" Stroke="Transparent"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
-                        Padding="8">
-                    <Grid ColumnDefinitions="44,*,44">
-                        <Button Grid.Column="0" Text="◀" Command="{Binding PreviousWeekCommand}"
-                                BackgroundColor="Transparent" TextColor="{StaticResource Primary}"
-                                FontSize="18" WidthRequest="44" HeightRequest="40" Padding="0"/>
-                        <Label Grid.Column="1" Text="{Binding WeekLabel}" FontSize="14" FontAttributes="Bold"
-                               HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-                        <Button Grid.Column="2" Text="▶" Command="{Binding NextWeekCommand}"
-                                BackgroundColor="Transparent" TextColor="{StaticResource Primary}"
-                                FontSize="18" WidthRequest="44" HeightRequest="40" Padding="0"/>
-                    </Grid>
-                </Border>
-
-                <!-- Meal Week Sections -->
-                <VerticalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding WeekMealDetails}">
-                    <BindableLayout.ItemTemplate>
-                        <DataTemplate>
-                            <Border StrokeShape="RoundRectangle 16" Stroke="Transparent"
-                                    BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
-                                    Padding="16">
-                                <VerticalStackLayout Spacing="8">
-                                    <HorizontalStackLayout Spacing="8">
-                                        <Label Text="{Binding MealEmoji}" FontSize="18"/>
-                                        <Label Text="{Binding MealName}" FontSize="16" FontAttributes="Bold"
-                                               VerticalOptions="Center"/>
-                                    </HorizontalStackLayout>
-
-                                    <BoxView HeightRequest="1" Color="{StaticResource Gray100}"/>
-
-                                    <!-- Column Headers -->
                                     <Grid ColumnDefinitions="55,*,20,*,50" IsVisible="{Binding HasData}">
                                         <Label Text="Día" FontSize="11" TextColor="{StaticResource Gray400}"/>
                                         <Label Grid.Column="1" Text="Pre" FontSize="11"
@@ -144,7 +113,6 @@
                                                TextColor="{StaticResource Gray400}" HorizontalTextAlignment="Center"/>
                                     </Grid>
 
-                                    <!-- Day Rows -->
                                     <VerticalStackLayout Spacing="2" BindableLayout.ItemsSource="{Binding Days}">
                                         <BindableLayout.ItemTemplate>
                                             <DataTemplate>
@@ -170,15 +138,15 @@
                                         </BindableLayout.ItemTemplate>
                                     </VerticalStackLayout>
 
-                                    <!-- No data message -->
                                     <Label Text="Sin datos esta semana" FontSize="13"
                                            TextColor="{StaticResource Gray400}" IsVisible="{Binding NoData}"
                                            HorizontalTextAlignment="Center" Padding="0,8"/>
                                 </VerticalStackLayout>
-                            </Border>
-                        </DataTemplate>
-                    </BindableLayout.ItemTemplate>
-                </VerticalStackLayout>
+
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
             </VerticalStackLayout>
 
         </VerticalStackLayout>

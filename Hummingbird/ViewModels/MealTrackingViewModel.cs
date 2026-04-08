@@ -4,7 +4,17 @@ using Hummingbird.Services;
 
 namespace Hummingbird.ViewModels;
 
-public class MealPairSummary : BaseViewModel
+public class MealDayDetail
+{
+    public string DayLabel { get; set; } = "";
+    public string PreGlucose { get; set; } = "--";
+    public string PostGlucose { get; set; } = "--";
+    public Color PreColor { get; set; } = Colors.Gray;
+    public Color PostColor { get; set; } = Colors.Gray;
+    public string DeltaText { get; set; } = "";
+}
+
+public class MealCard : BaseViewModel
 {
     public string MealName { get; set; } = "";
     public string MealEmoji { get; set; } = "";
@@ -29,25 +39,31 @@ public class MealPairSummary : BaseViewModel
 
     private string _deltaText = "--";
     public string DeltaText { get => _deltaText; set => SetProperty(ref _deltaText, value); }
-}
 
-public class MealDayDetail
-{
-    public string DayLabel { get; set; } = "";
-    public string PreGlucose { get; set; } = "--";
-    public string PostGlucose { get; set; } = "--";
-    public Color PreColor { get; set; } = Colors.Gray;
-    public Color PostColor { get; set; } = Colors.Gray;
-    public string DeltaText { get; set; } = "";
-}
-
-public class MealWeekSection
-{
-    public string MealName { get; set; } = "";
-    public string MealEmoji { get; set; } = "";
     public List<MealDayDetail> Days { get; set; } = [];
     public bool NoData { get; set; } = true;
     public bool HasData { get; set; }
+
+    private bool _isExpanded;
+    public bool IsExpanded
+    {
+        get => _isExpanded;
+        set
+        {
+            if (SetProperty(ref _isExpanded, value))
+                ExpandIcon = value ? "▲" : "▼";
+        }
+    }
+
+    private string _expandIcon = "▼";
+    public string ExpandIcon { get => _expandIcon; set => SetProperty(ref _expandIcon, value); }
+
+    public Command ToggleExpandCommand { get; }
+
+    public MealCard()
+    {
+        ToggleExpandCommand = new Command(() => IsExpanded = !IsExpanded);
+    }
 }
 
 public class MealTrackingViewModel : BaseViewModel
@@ -55,7 +71,7 @@ public class MealTrackingViewModel : BaseViewModel
     private readonly DataService _dataService;
     private readonly InsulinCalculatorService _calculatorService;
 
-    public ObservableCollection<MealPairSummary> MealSummaries { get; } = [];
+    public ObservableCollection<MealCard> MealCards { get; } = [];
 
     public List<string> Periods { get; } = ["Hoy", "Última semana", "Último mes", "Todo"];
 
@@ -72,8 +88,6 @@ public class MealTrackingViewModel : BaseViewModel
 
     private string _periodSummary = "";
     public string PeriodSummary { get => _periodSummary; set => SetProperty(ref _periodSummary, value); }
-
-    public ObservableCollection<MealWeekSection> WeekMealDetails { get; } = [];
 
     private DateTime _weekStart;
 
@@ -119,7 +133,15 @@ public class MealTrackingViewModel : BaseViewModel
                 ("Cena", "🌙", MeasurementTypes.PreDinner, MeasurementTypes.PostDinner)
             };
 
-            MealSummaries.Clear();
+            var expandedMeals = MealCards.Where(c => c.IsExpanded).Select(c => c.MealName).ToHashSet();
+
+            var weekEnd = _weekStart.AddDays(6);
+            WeekLabel = $"{_weekStart:dd MMM} – {weekEnd:dd MMM yyyy}";
+            var weekReadings = allReadings
+                .Where(r => r.Date.Date >= _weekStart && r.Date.Date <= weekEnd)
+                .ToList();
+
+            MealCards.Clear();
             foreach (var (name, emoji, preType, postType) in meals)
             {
                 var preReadings = filtered.Where(r => r.MeasurementType == preType).ToList();
@@ -129,7 +151,49 @@ public class MealTrackingViewModel : BaseViewModel
                 var postAvg = postReadings.Count > 0 ? postReadings.Average(r => r.Glucose) : 0;
                 var delta = (preReadings.Count > 0 && postReadings.Count > 0) ? postAvg - preAvg : 0;
 
-                MealSummaries.Add(new MealPairSummary
+                var days = new List<MealDayDetail>();
+                bool hasAny = false;
+                for (int i = 0; i < 7; i++)
+                {
+                    var date = _weekStart.AddDays(i);
+                    var preReading = weekReadings
+                        .Where(r => r.Date.Date == date && r.MeasurementType == preType)
+                        .OrderByDescending(r => r.Time)
+                        .FirstOrDefault();
+                    var postReading = weekReadings
+                        .Where(r => r.Date.Date == date && r.MeasurementType == postType)
+                        .OrderByDescending(r => r.Time)
+                        .FirstOrDefault();
+
+                    if (preReading is null && postReading is null)
+                        continue;
+
+                    hasAny = true;
+                    int? preGlucose = preReading?.Glucose;
+                    int? postGlucose = postReading?.Glucose;
+                    int? dayDelta = (preGlucose.HasValue && postGlucose.HasValue)
+                        ? postGlucose.Value - preGlucose.Value
+                        : null;
+
+                    days.Add(new MealDayDetail
+                    {
+                        DayLabel = date.ToString("ddd dd"),
+                        PreGlucose = preGlucose?.ToString() ?? "--",
+                        PostGlucose = postGlucose?.ToString() ?? "--",
+                        PreColor = preGlucose.HasValue
+                            ? _calculatorService.GetGlucoseColor(preGlucose.Value, config)
+                            : Colors.Gray,
+                        PostColor = postGlucose.HasValue
+                            ? _calculatorService.GetGlucoseColor(postGlucose.Value, config)
+                            : Colors.Gray,
+                        DeltaText = dayDelta.HasValue
+                            ? (dayDelta.Value >= 0 ? $"+{dayDelta.Value}" : $"{dayDelta.Value}")
+                            : ""
+                    });
+                }
+
+                var isExpanded = expandedMeals.Contains(name);
+                MealCards.Add(new MealCard
                 {
                     MealName = name,
                     MealEmoji = emoji,
@@ -139,15 +203,18 @@ public class MealTrackingViewModel : BaseViewModel
                     PostCount = postReadings.Count,
                     PreColor = preReadings.Count > 0 ? _calculatorService.GetGlucoseColor((int)preAvg, config) : Colors.Gray,
                     PostColor = postReadings.Count > 0 ? _calculatorService.GetGlucoseColor((int)postAvg, config) : Colors.Gray,
-                    DeltaText = delta != 0 ? (delta > 0 ? $"+{delta:F0}" : $"{delta:F0}") : "--"
+                    DeltaText = delta != 0 ? (delta > 0 ? $"+{delta:F0}" : $"{delta:F0}") : "--",
+                    Days = days,
+                    NoData = !hasAny,
+                    HasData = hasAny,
+                    IsExpanded = isExpanded,
+                    ExpandIcon = isExpanded ? "▲" : "▼"
                 });
             }
 
             var totalPre = filtered.Count(r => MeasurementTypes.IsPreprandial(r.MeasurementType));
             var totalPost = filtered.Count(r => MeasurementTypes.IsPostprandial(r.MeasurementType));
             PeriodSummary = $"{totalPre} preprandiales · {totalPost} postprandiales";
-
-            LoadWeekDetails(allReadings, config);
         }
         finally
         {
@@ -159,74 +226,5 @@ public class MealTrackingViewModel : BaseViewModel
     {
         var diff = (7 + (date.DayOfWeek - DayOfWeek.Monday)) % 7;
         return date.AddDays(-diff).Date;
-    }
-
-    private void LoadWeekDetails(IEnumerable<GlucoseReading> allReadings, AppConfig config)
-    {
-        var weekEnd = _weekStart.AddDays(6);
-        WeekLabel = $"{_weekStart:dd MMM} – {weekEnd:dd MMM yyyy}";
-
-        var weekReadings = allReadings
-            .Where(r => r.Date.Date >= _weekStart && r.Date.Date <= weekEnd)
-            .ToList();
-
-        var meals = new[]
-        {
-            ("Desayuno", "🌅", MeasurementTypes.PreBreakfast, MeasurementTypes.PostBreakfast),
-            ("Almuerzo", "☀️", MeasurementTypes.PreLunch, MeasurementTypes.PostLunch),
-            ("Cena", "🌙", MeasurementTypes.PreDinner, MeasurementTypes.PostDinner)
-        };
-
-        WeekMealDetails.Clear();
-        foreach (var (name, emoji, preType, postType) in meals)
-        {
-            var section = new MealWeekSection { MealName = name, MealEmoji = emoji };
-            var days = new List<MealDayDetail>();
-            bool hasAny = false;
-
-            for (int i = 0; i < 7; i++)
-            {
-                var date = _weekStart.AddDays(i);
-                var preReading = weekReadings
-                    .Where(r => r.Date.Date == date && r.MeasurementType == preType)
-                    .OrderByDescending(r => r.Time)
-                    .FirstOrDefault();
-                var postReading = weekReadings
-                    .Where(r => r.Date.Date == date && r.MeasurementType == postType)
-                    .OrderByDescending(r => r.Time)
-                    .FirstOrDefault();
-
-                if (preReading is null && postReading is null)
-                    continue;
-
-                hasAny = true;
-                int? preGlucose = preReading?.Glucose;
-                int? postGlucose = postReading?.Glucose;
-                int? delta = (preGlucose.HasValue && postGlucose.HasValue)
-                    ? postGlucose.Value - preGlucose.Value
-                    : null;
-
-                days.Add(new MealDayDetail
-                {
-                    DayLabel = date.ToString("ddd dd"),
-                    PreGlucose = preGlucose?.ToString() ?? "--",
-                    PostGlucose = postGlucose?.ToString() ?? "--",
-                    PreColor = preGlucose.HasValue
-                        ? _calculatorService.GetGlucoseColor(preGlucose.Value, config)
-                        : Colors.Gray,
-                    PostColor = postGlucose.HasValue
-                        ? _calculatorService.GetGlucoseColor(postGlucose.Value, config)
-                        : Colors.Gray,
-                    DeltaText = delta.HasValue
-                        ? (delta.Value >= 0 ? $"+{delta.Value}" : $"{delta.Value}")
-                        : ""
-                });
-            }
-
-            section.Days = days;
-            section.NoData = !hasAny;
-            section.HasData = hasAny;
-            WeekMealDetails.Add(section);
-        }
     }
 }

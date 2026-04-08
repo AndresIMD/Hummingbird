@@ -16,5 +16,6 @@ public partial class DashboardPage : ContentPage
     {
         base.OnAppearing();
         await _viewModel.LoadDataAsync();
+        (this.FindByName("GlucoseChart") as GraphicsView)?.Invalidate();
     }
 }

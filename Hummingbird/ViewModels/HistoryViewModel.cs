@@ -85,10 +85,29 @@ public class HistoryViewModel : BaseViewModel
 
     private async Task DeleteAsync(ReadingDisplayItem item)
     {
-        var confirm = await Shell.Current.DisplayAlertAsync("Eliminar", "¿Eliminar este registro?", "Sí", "No");
-        if (!confirm) return;
+        try
+        {
+            var confirm = await Shell.Current.DisplayAlertAsync("Eliminar", "¿Eliminar este registro?", "Sí", "No");
+            if (!confirm) return;
 
-        await _dataService.DeleteReadingAsync(item.Reading.Id);
-        await LoadDataAsync();
+            await _dataService.DeleteReadingAsync(item.Reading.Id);
+
+            foreach (var group in GroupedReadings.ToList())
+            {
+                if (group.Remove(item))
+                {
+                    if (group.Count == 0)
+                        GroupedReadings.Remove(group);
+                    break;
+                }
+            }
+
+            var readings = await _dataService.GetReadingsAsync();
+            SummaryText = $"{readings.Count} registros en total";
+        }
+        catch (Exception ex)
+        {
+            await Shell.Current.DisplayAlertAsync("Error", $"No se pudo eliminar: {ex.Message}", "OK");
+        }
     }
 }

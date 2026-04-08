@@ -1,6 +1,17 @@
+using Hummingbird.Controls;
+using Hummingbird.Models;
 using Hummingbird.Services;
 
 namespace Hummingbird.ViewModels;
+
+public class CalendarDayInfo
+{
+    public string DayText { get; set; } = "";
+    public string AverageText { get; set; } = "";
+    public Color BackgroundColor { get; set; } = Colors.Transparent;
+    public Color TextColor { get; set; } = Colors.Transparent;
+    public bool HasData { get; set; }
+}
 
 public class DashboardViewModel : BaseViewModel
 {
@@ -43,11 +54,35 @@ public class DashboardViewModel : BaseViewModel
     private string _rangeVeryHighText = "Muy alto (> 250 mg/dL)";
     public string RangeVeryHighText { get => _rangeVeryHighText; set => SetProperty(ref _rangeVeryHighText, value); }
 
+    private GlucoseChartDrawable? _chartDrawable;
+    public GlucoseChartDrawable? ChartDrawable { get => _chartDrawable; set => SetProperty(ref _chartDrawable, value); }
+
+    private bool _hasChartData;
+    public bool HasChartData { get => _hasChartData; set => SetProperty(ref _hasChartData, value); }
+
+    private List<CalendarDayInfo> _calendarDays = [];
+    public List<CalendarDayInfo> CalendarDays { get => _calendarDays; set => SetProperty(ref _calendarDays, value); }
+
+    private string _calendarMonthText = "";
+    public string CalendarMonthText { get => _calendarMonthText; set => SetProperty(ref _calendarMonthText, value); }
+
+    private double _calendarHeight = 240;
+    public double CalendarHeight { get => _calendarHeight; set => SetProperty(ref _calendarHeight, value); }
+
+    public Command PreviousMonthCommand { get; }
+    public Command NextMonthCommand { get; }
+
+    private DateTime _calendarMonth = new(DateTime.Today.Year, DateTime.Today.Month, 1);
+    private List<GlucoseReading> _allReadings = [];
+    private AppConfig _config = new();
+
     public DashboardViewModel(DataService dataService, InsulinCalculatorService calculatorService)
     {
         _dataService = dataService;
         _calculatorService = calculatorService;
         Title = "Dashboard";
+        PreviousMonthCommand = new Command(() => { _calendarMonth = _calendarMonth.AddMonths(-1); UpdateCalendar(); });
+        NextMonthCommand = new Command(() => { _calendarMonth = _calendarMonth.AddMonths(1); UpdateCalendar(); });
     }
 
     public async Task LoadDataAsync()
@@ -116,6 +151,31 @@ public class DashboardViewModel : BaseViewModel
             StatusMessage = last7Days.Count == 0
                 ? "Sin registros en los últimos 7 días"
                 : $"Basado en {last7Days.Count} mediciones (últimos 7 días)";
+
+            _allReadings = readings;
+            _config = config;
+
+            if (last7Days.Count > 0)
+            {
+                ChartDrawable = new GlucoseChartDrawable
+                {
+                    Points = last7Days
+                        .Select(r => new GlucoseChartDrawable.ChartPoint(r.FullDateTime, r.Glucose))
+                        .ToList(),
+                    RangeLow = config.RangeLow,
+                    RangeHigh = config.RangeHigh,
+                    RangeVeryHigh = config.RangeVeryHigh,
+                    GlucoseTarget = config.GlucoseTarget
+                };
+                HasChartData = true;
+            }
+            else
+            {
+                ChartDrawable = null;
+                HasChartData = false;
+            }
+
+            UpdateCalendar();
         }
         catch (Exception ex)
         {
@@ -125,5 +185,53 @@ public class DashboardViewModel : BaseViewModel
         {
             IsBusy = false;
         }
+    }
+
+    private void UpdateCalendar()
+    {
+        var days = new List<CalendarDayInfo>();
+        var first = _calendarMonth;
+        var daysInMonth = DateTime.DaysInMonth(first.Year, first.Month);
+        var startDow = ((int)first.DayOfWeek + 6) % 7;
+
+        for (int i = 0; i < startDow; i++)
+            days.Add(new CalendarDayInfo());
+
+        for (int day = 1; day <= daysInMonth; day++)
+        {
+            var date = new DateTime(first.Year, first.Month, day);
+            var dayReadings = _allReadings.Where(r => r.Date.Date == date.Date).ToList();
+            var isToday = date.Date == DateTime.Today;
+            var info = new CalendarDayInfo { DayText = day.ToString() };
+
+            if (dayReadings.Count > 0)
+            {
+                var avg = (int)dayReadings.Average(r => r.Glucose);
+                info.BackgroundColor = _calculatorService.GetGlucoseColor(avg, _config);
+                info.TextColor = Colors.White;
+                info.AverageText = avg.ToString();
+                info.HasData = true;
+            }
+            else
+            {
+                info.BackgroundColor = isToday
+                    ? Color.FromArgb("#0D9488").WithAlpha(0.15f)
+                    : Colors.Transparent;
+                info.TextColor = isToday
+                    ? Color.FromArgb("#0D9488")
+                    : Colors.Gray;
+            }
+
+            days.Add(info);
+        }
+
+        CalendarDays = days;
+
+        int totalCells = startDow + daysInMonth;
+        int rows = (totalCells + 6) / 7;
+        CalendarHeight = rows * 47;
+
+        var monthText = first.ToString("MMMM yyyy");
+        CalendarMonthText = char.ToUpper(monthText[0]) + monthText[1..];
     }
 }

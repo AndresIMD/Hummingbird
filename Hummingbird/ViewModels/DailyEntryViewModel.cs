@@ -135,18 +135,13 @@ public class DailyEntryViewModel : BaseViewModel
 
         ShowCarbohydrates = isPreprandial;
         ShowInsulinCalculator = true;
-        ShowExtras = !isUnique;
+        ShowExtras = true;
         ShowSafeDose = type == MeasurementTypes.PreDinner;
         ShowActivityInput = false;
         ShowNotesInput = false;
 
         if (!ShowCarbohydrates)
             CarbohydratesText = "";
-        if (!ShowExtras)
-        {
-            Activity = "";
-            Notes = "";
-        }
     }
 
     private void UpdateCalculation()

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Hummingbird.Views.InsulinCalculatorPage"
+             Title="Calculadora">
+
+    <ScrollView Padding="16">
+        <VerticalStackLayout Spacing="16">
+
+            <Label Text="🧮 Calculadora FSI / Ratio" FontSize="24" FontAttributes="Bold"
+                   TextColor="{StaticResource Primary}" Padding="0,8,0,0"/>
+
+            <Label Text="Calcula el Factor de Sensibilidad a la Insulina (FSI) y el Ratio Insulina-Carbohidratos a partir de la Dosis Diaria Total (DDT)."
+                   FontSize="13" TextColor="{StaticResource Gray400}" Margin="0,0,0,8"/>
+
+            <!-- TDD Input -->
+            <Border StrokeShape="RoundRectangle 16" Stroke="Transparent"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                    Padding="16">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Dosis Diaria Total (DDT)" FontSize="16" FontAttributes="Bold"/>
+                    <Label Text="Suma de todas las unidades de insulina que usas en un día."
+                           FontSize="12" TextColor="{StaticResource Gray400}"/>
+                    <Entry Text="{Binding TotalDailyDose}" Keyboard="Numeric" Placeholder="Ej: 30"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- FSI Section -->
+            <Border StrokeShape="RoundRectangle 16" Stroke="Transparent"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                    Padding="16">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="📉 Factor de Sensibilidad (FSI)" FontSize="16" FontAttributes="Bold"/>
+                    <Label Text="Cuánto baja tu glucosa por cada unidad de insulina."
+                           FontSize="12" TextColor="{StaticResource Gray400}"/>
+
+                    <Label Text="Constante según tipo de insulina" FontSize="13"/>
+                    <Picker Title="Tipo de insulina"
+                            ItemsSource="{Binding FsiConstantOptions}"
+                            SelectedIndex="{Binding SelectedFsiConstantIndex}"/>
+
+                    <Entry Text="{Binding CustomFsiConstant}" Keyboard="Numeric"
+                           Placeholder="Constante personalizada"
+                           IsVisible="{Binding IsCustomFsi}"/>
+
+                    <BoxView HeightRequest="1" Color="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray600}}" Margin="0,4"/>
+
+                    <Label Text="{Binding FsiFormula}" FontSize="13" TextColor="{StaticResource Gray400}"/>
+                    <Label FontSize="28" FontAttributes="Bold" TextColor="{StaticResource Primary}"
+                           HorizontalOptions="Center">
+                        <Label.Text>
+                            <MultiBinding StringFormat="FSI = {0}">
+                                <Binding Path="FsiResult"/>
+                            </MultiBinding>
+                        </Label.Text>
+                    </Label>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Ratio Section -->
+            <Border StrokeShape="RoundRectangle 16" Stroke="Transparent"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                    Padding="16">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="🍞 Ratio Insulina-Carbohidratos" FontSize="16" FontAttributes="Bold"/>
+                    <Label Text="Cuántos gramos de carbohidratos cubre una unidad de insulina."
+                           FontSize="12" TextColor="{StaticResource Gray400}"/>
+
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8" VerticalOptions="Center">
+                        <Label Text="Constante" FontSize="13" VerticalOptions="Center"/>
+                        <Entry Grid.Column="1" Text="{Binding RatioConstant}" Keyboard="Numeric"/>
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray600}}" Margin="0,4"/>
+
+                    <Label Text="{Binding RatioFormula}" FontSize="13" TextColor="{StaticResource Gray400}"/>
+                    <Label FontSize="28" FontAttributes="Bold" TextColor="{StaticResource Primary}"
+                           HorizontalOptions="Center">
+                        <Label.Text>
+                            <MultiBinding StringFormat="Ratio = {0}">
+                                <Binding Path="RatioResult"/>
+                            </MultiBinding>
+                        </Label.Text>
+                    </Label>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Apply Button -->
+            <Button Text="Aplicar a Configuración"
+                    Command="{Binding ApplyToSettingsCommand}"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    CornerRadius="12"
+                    HeightRequest="48"
+                    Margin="0,8,0,24"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

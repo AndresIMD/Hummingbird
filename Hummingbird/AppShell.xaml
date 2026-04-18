@@ -16,6 +16,8 @@
                       ContentTemplate="{DataTemplate views:HistoryPage}"/>
         <ShellContent Title="Comidas" Route="MealTracking"
                       ContentTemplate="{DataTemplate views:MealTrackingPage}"/>
+        <ShellContent Title="Calculadora" Route="InsulinCalculator"
+                      ContentTemplate="{DataTemplate views:InsulinCalculatorPage}"/>
         <ShellContent Title="Ajustes" Route="Settings"
                       ContentTemplate="{DataTemplate views:SettingsPage}"/>
     </TabBar>

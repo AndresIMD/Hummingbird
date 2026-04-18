@@ -28,6 +28,7 @@ namespace Hummingbird
             builder.Services.AddTransient<HistoryViewModel>();
             builder.Services.AddTransient<MealTrackingViewModel>();
             builder.Services.AddTransient<SettingsViewModel>();
+            builder.Services.AddTransient<InsulinCalculatorViewModel>();
 
             // Pages
             builder.Services.AddTransient<DashboardPage>();
@@ -35,6 +36,7 @@ namespace Hummingbird
             builder.Services.AddTransient<HistoryPage>();
             builder.Services.AddTransient<MealTrackingPage>();
             builder.Services.AddTransient<SettingsPage>();
+            builder.Services.AddTransient<InsulinCalculatorPage>();
 
 #if DEBUG
             builder.Logging.AddDebug();

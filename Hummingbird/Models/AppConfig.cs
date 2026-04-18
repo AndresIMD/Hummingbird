@@ -9,4 +9,5 @@ public class AppConfig
     public int RangeVeryHigh { get; set; } = 250;
     public double InsulinCarbRatio { get; set; } = 10;
     public int NightTarget { get; set; } = 150;
+    public int DailyMeasurementGoal { get; set; } = 4;
 }

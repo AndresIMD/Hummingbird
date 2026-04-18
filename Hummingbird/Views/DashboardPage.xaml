@@ -44,8 +44,12 @@
                         Padding="16">
                     <VerticalStackLayout Spacing="4">
                         <Label Text="Última medición" FontSize="13" TextColor="{StaticResource Gray500}"/>
-                        <Label Text="{Binding LastGlucose}" FontSize="36" FontAttributes="Bold"
-                               TextColor="{Binding LastGlucoseColor}"/>
+                        <HorizontalStackLayout Spacing="6">
+                            <Label Text="{Binding LastGlucose}" FontSize="36" FontAttributes="Bold"
+                                   TextColor="{Binding LastGlucoseColor}"/>
+                            <Label Text="{Binding GlucoseTrend}" FontSize="28"
+                                   TextColor="{Binding GlucoseTrendColor}" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
                         <Label Text="{Binding LastGlucoseTime}" FontSize="11" TextColor="{StaticResource Gray400}"/>
                     </VerticalStackLayout>
                 </Border>
@@ -71,6 +75,55 @@
                     <GraphicsView x:Name="GlucoseChart"
                                   Drawable="{Binding ChartDrawable}"
                                   HeightRequest="200"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- HbA1c Estimado -->
+            <Border StrokeShape="RoundRectangle 16" Stroke="Transparent"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                    Padding="16" Opacity="{Binding HasReliableHbA1c, Converter={StaticResource BoolToOpacityConverter}}">
+                <Grid ColumnDefinitions="*,Auto">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="🧬 HbA1c Estimado" FontSize="16" FontAttributes="Bold"/>
+                        <Label Text="{Binding HbA1cPeriod}" FontSize="11" TextColor="{StaticResource Gray400}"/>
+                    </VerticalStackLayout>
+                    <Label Grid.Column="1" Text="{Binding EstimatedHbA1c}" FontSize="36" FontAttributes="Bold"
+                           TextColor="{StaticResource Primary}" VerticalOptions="Center"/>
+                </Grid>
+            </Border>
+
+            <!-- TIR Detallado -->
+            <Border StrokeShape="RoundRectangle 16" Stroke="Transparent"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                    Padding="16" Opacity="{Binding HasReliableTir, Converter={StaticResource BoolToOpacityConverter}}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="🎯 Tiempo en Rango" FontSize="16" FontAttributes="Bold"/>
+                    <Label Text="{Binding TirConfidenceNote}" FontSize="11" TextColor="{StaticResource Gray400}" Margin="0,-6,0,0"/>
+                    <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="8" ColumnSpacing="8">
+                        <BoxView Grid.Row="0" WidthRequest="12" HeightRequest="12" CornerRadius="6"
+                                 Color="{StaticResource GlucoseLow}" VerticalOptions="Center"/>
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding RangeLowText}" FontSize="13" VerticalOptions="Center"/>
+                        <Label Grid.Row="0" Grid.Column="2" Text="{Binding TirLow}" FontSize="16" FontAttributes="Bold"
+                               TextColor="{StaticResource GlucoseLow}" HorizontalTextAlignment="End"/>
+
+                        <BoxView Grid.Row="1" WidthRequest="12" HeightRequest="12" CornerRadius="6"
+                                 Color="{StaticResource GlucoseInRange}" VerticalOptions="Center"/>
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding RangeInRangeText}" FontSize="13" VerticalOptions="Center"/>
+                        <Label Grid.Row="1" Grid.Column="2" Text="{Binding TirInRange}" FontSize="16" FontAttributes="Bold"
+                               TextColor="{StaticResource GlucoseInRange}" HorizontalTextAlignment="End"/>
+
+                        <BoxView Grid.Row="2" WidthRequest="12" HeightRequest="12" CornerRadius="6"
+                                 Color="{StaticResource GlucoseHigh}" VerticalOptions="Center"/>
+                        <Label Grid.Row="2" Grid.Column="1" Text="{Binding RangeHighText}" FontSize="13" VerticalOptions="Center"/>
+                        <Label Grid.Row="2" Grid.Column="2" Text="{Binding TirHigh}" FontSize="16" FontAttributes="Bold"
+                               TextColor="{StaticResource GlucoseHigh}" HorizontalTextAlignment="End"/>
+
+                        <BoxView Grid.Row="3" WidthRequest="12" HeightRequest="12" CornerRadius="6"
+                                 Color="{StaticResource GlucoseVeryHigh}" VerticalOptions="Center"/>
+                        <Label Grid.Row="3" Grid.Column="1" Text="{Binding RangeVeryHighText}" FontSize="13" VerticalOptions="Center"/>
+                        <Label Grid.Row="3" Grid.Column="2" Text="{Binding TirVeryHigh}" FontSize="16" FontAttributes="Bold"
+                               TextColor="{StaticResource GlucoseVeryHigh}" HorizontalTextAlignment="End"/>
+                    </Grid>
                 </VerticalStackLayout>
             </Border>
 
@@ -132,50 +185,39 @@
                 </VerticalStackLayout>
             </Border>
 
+            <!-- Objetivo Diario -->
             <Border StrokeShape="RoundRectangle 16" Stroke="Transparent"
                     BackgroundColor="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource Tertiary}}"
                     Padding="20">
-                <HorizontalStackLayout Spacing="12" HorizontalOptions="Center">
-                    <Label Text="📊" FontSize="24" VerticalOptions="Center"/>
-                    <VerticalStackLayout>
-                        <Label Text="{Binding TodaySummary}" FontSize="16" FontAttributes="Bold"
-                               TextColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource White}}"/>
-                        <Label Text="{Binding StatusMessage}" FontSize="12"
-                               TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}"/>
-                    </VerticalStackLayout>
-                </HorizontalStackLayout>
-            </Border>
+                <VerticalStackLayout Spacing="10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="📋 Objetivo del día" FontSize="16" FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource White}}"/>
+                            <Label Text="{Binding StatusMessage}" FontSize="12"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}"/>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" HorizontalOptions="End" Spacing="0">
+                            <Label Text="{Binding DailyGoalText}" FontSize="28" FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource White}}"
+                                   HorizontalTextAlignment="Center"/>
+                            <Label Text="mediciones" FontSize="10"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}"
+                                   HorizontalTextAlignment="Center"/>
+                        </VerticalStackLayout>
+                    </Grid>
 
-            <Border StrokeShape="RoundRectangle 16" Stroke="Transparent"
-                    BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
-                    Padding="16">
-                <VerticalStackLayout Spacing="8">
-                    <Label Text="Guía de rangos" FontSize="14" FontAttributes="Bold"
-                           TextColor="{StaticResource Gray600}"/>
-                    <HorizontalStackLayout Spacing="8">
-                        <BoxView WidthRequest="12" HeightRequest="12" CornerRadius="6"
-                                 Color="{StaticResource GlucoseLow}"/>
-                        <Label Text="{Binding RangeLowText}" FontSize="12" TextColor="{StaticResource Gray500}"/>
-                    </HorizontalStackLayout>
-                    <HorizontalStackLayout Spacing="8">
-                        <BoxView WidthRequest="12" HeightRequest="12" CornerRadius="6"
-                                 Color="{StaticResource GlucoseInRange}"/>
-                        <Label Text="{Binding RangeInRangeText}" FontSize="12" TextColor="{StaticResource Gray500}"/>
-                    </HorizontalStackLayout>
-                    <HorizontalStackLayout Spacing="8">
-                        <BoxView WidthRequest="12" HeightRequest="12" CornerRadius="6"
-                                 Color="{StaticResource GlucoseHigh}"/>
-                        <Label Text="{Binding RangeHighText}" FontSize="12" TextColor="{StaticResource Gray500}"/>
-                    </HorizontalStackLayout>
-                    <HorizontalStackLayout Spacing="8">
-                        <BoxView WidthRequest="12" HeightRequest="12" CornerRadius="6"
-                                 Color="{StaticResource GlucoseVeryHigh}"/>
-                        <Label Text="{Binding RangeVeryHighText}" FontSize="12" TextColor="{StaticResource Gray500}"/>
-                    </HorizontalStackLayout>
+                    <ProgressBar Progress="{Binding DailyGoalProgress}"
+                                 ProgressColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource Secondary}}"
+                                 HeightRequest="6"/>
+
+                    <Label Text="{Binding StreakText}" FontSize="13"
+                           TextColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource Secondary}}"
+                           HorizontalTextAlignment="Center"/>
                 </VerticalStackLayout>
             </Border>
 
-        </VerticalStackLayout>
-    </ScrollView>
+                    </VerticalStackLayout>
+                </ScrollView>
 
-</ContentPage>
+            </ContentPage>

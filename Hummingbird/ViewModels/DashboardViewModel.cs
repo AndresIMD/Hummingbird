@@ -54,6 +54,60 @@ public class DashboardViewModel : BaseViewModel
     private string _rangeVeryHighText = "Muy alto (> 250 mg/dL)";
     public string RangeVeryHighText { get => _rangeVeryHighText; set => SetProperty(ref _rangeVeryHighText, value); }
 
+    private string _estimatedHbA1c = "--";
+    public string EstimatedHbA1c { get => _estimatedHbA1c; set => SetProperty(ref _estimatedHbA1c, value); }
+
+    private string _hbA1cPeriod = "";
+    public string HbA1cPeriod { get => _hbA1cPeriod; set => SetProperty(ref _hbA1cPeriod, value); }
+
+    private string _tirLow = "--";
+    public string TirLow { get => _tirLow; set => SetProperty(ref _tirLow, value); }
+
+    private string _tirInRange = "--";
+    public string TirInRange { get => _tirInRange; set => SetProperty(ref _tirInRange, value); }
+
+    private string _tirHigh = "--";
+    public string TirHigh { get => _tirHigh; set => SetProperty(ref _tirHigh, value); }
+
+    private string _tirVeryHigh = "--";
+    public string TirVeryHigh { get => _tirVeryHigh; set => SetProperty(ref _tirVeryHigh, value); }
+
+    private string _glucoseTrend = "";
+    public string GlucoseTrend { get => _glucoseTrend; set => SetProperty(ref _glucoseTrend, value); }
+
+    private Color _glucoseTrendColor = Colors.Gray;
+    public Color GlucoseTrendColor { get => _glucoseTrendColor; set => SetProperty(ref _glucoseTrendColor, value); }
+
+    private bool _hasReliableHbA1c;
+    public bool HasReliableHbA1c { get => _hasReliableHbA1c; set => SetProperty(ref _hasReliableHbA1c, value); }
+
+    private bool _hasReliableTir;
+    public bool HasReliableTir { get => _hasReliableTir; set => SetProperty(ref _hasReliableTir, value); }
+
+    private string _tirConfidenceNote = "";
+    public string TirConfidenceNote { get => _tirConfidenceNote; set => SetProperty(ref _tirConfidenceNote, value); }
+
+    private int _dailyGoalCurrent;
+    public int DailyGoalCurrent { get => _dailyGoalCurrent; set => SetProperty(ref _dailyGoalCurrent, value); }
+
+    private int _dailyGoalTarget = 4;
+    public int DailyGoalTarget { get => _dailyGoalTarget; set => SetProperty(ref _dailyGoalTarget, value); }
+
+    private string _dailyGoalText = "0 / 4";
+    public string DailyGoalText { get => _dailyGoalText; set => SetProperty(ref _dailyGoalText, value); }
+
+    private double _dailyGoalProgress;
+    public double DailyGoalProgress { get => _dailyGoalProgress; set => SetProperty(ref _dailyGoalProgress, value); }
+
+    private bool _dailyGoalComplete;
+    public bool DailyGoalComplete { get => _dailyGoalComplete; set => SetProperty(ref _dailyGoalComplete, value); }
+
+    private string _streakText = "";
+    public string StreakText { get => _streakText; set => SetProperty(ref _streakText, value); }
+
+    private int _streakDays;
+    public int StreakDays { get => _streakDays; set => SetProperty(ref _streakDays, value); }
+
     private GlucoseChartDrawable? _chartDrawable;
     public GlucoseChartDrawable? ChartDrawable { get => _chartDrawable; set => SetProperty(ref _chartDrawable, value); }
 
@@ -145,6 +199,101 @@ public class DashboardViewModel : BaseViewModel
             else
             {
                 TotalInsulin = "--";
+            }
+
+            // Objetivo diario de mediciones
+            DailyGoalTarget = config.DailyMeasurementGoal;
+            DailyGoalCurrent = today.Count;
+            DailyGoalText = $"{Math.Min(DailyGoalCurrent, DailyGoalTarget)} / {DailyGoalTarget}";
+            DailyGoalProgress = Math.Min(1.0, (double)DailyGoalCurrent / DailyGoalTarget);
+            DailyGoalComplete = DailyGoalCurrent >= DailyGoalTarget;
+
+            // Racha de días consecutivos cumpliendo el objetivo
+            var streak = 0;
+            var checkDate = DateTime.Today.AddDays(-1);
+            while (true)
+            {
+                var dayCount = readings.Count(r => r.Date.Date == checkDate.Date);
+                if (dayCount >= config.DailyMeasurementGoal)
+                {
+                    streak++;
+                    checkDate = checkDate.AddDays(-1);
+                }
+                else break;
+            }
+            if (DailyGoalComplete) streak++;
+            StreakDays = streak;
+            StreakText = streak switch
+            {
+                0 => "¡Registra tus mediciones para iniciar racha!",
+                1 => "🔥1 día cumpliendo el objetivo",
+                _ => $"🔥{streak} días consecutivos cumpliendo el objetivo"
+            };
+
+            // HbA1c estimado (últimos 90 días, mínimo 90 lecturas + 30 días distintos)
+            const int minHbA1cReadings = 90;
+            const int minHbA1cDays = 30;
+            var last90Days = readings.Where(r => r.FullDateTime >= now.AddDays(-90)).ToList();
+            var uniqueDays90 = last90Days.Select(r => r.Date.Date).Distinct().Count();
+            if (last90Days.Count >= minHbA1cReadings && uniqueDays90 >= minHbA1cDays)
+            {
+                var avg90 = last90Days.Average(r => r.Glucose);
+                var hba1c = (avg90 + 46.7) / 28.7;
+                EstimatedHbA1c = $"{hba1c:F1}%";
+                HbA1cPeriod = $"{last90Days.Count} mediciones · {uniqueDays90} días";
+                HasReliableHbA1c = true;
+            }
+            else
+            {
+                EstimatedHbA1c = "--";
+                var readingsPart = $"{last90Days.Count}/{minHbA1cReadings} mediciones";
+                var daysPart = $"{uniqueDays90}/{minHbA1cDays} días";
+                HbA1cPeriod = $"{readingsPart} · {daysPart}";
+                HasReliableHbA1c = false;
+            }
+
+            // TIR detallado (últimos 7 días, mínimo 14 lecturas ≈ 2/día)
+            const int minTirReadings = 14;
+            if (last7Days.Count >= minTirReadings)
+            {
+                var total = (double)last7Days.Count;
+                var low = last7Days.Count(r => r.Glucose < config.RangeLow);
+                var inRange = last7Days.Count(r => r.Glucose >= config.RangeLow && r.Glucose <= config.RangeHigh);
+                var high = last7Days.Count(r => r.Glucose > config.RangeHigh && r.Glucose <= config.RangeVeryHigh);
+                var veryHigh = last7Days.Count(r => r.Glucose > config.RangeVeryHigh);
+                TirLow = $"{low / total * 100:F0}%";
+                TirInRange = $"{inRange / total * 100:F0}%";
+                TirHigh = $"{high / total * 100:F0}%";
+                TirVeryHigh = $"{veryHigh / total * 100:F0}%";
+                HasReliableTir = true;
+                TirConfidenceNote = $"{last7Days.Count} mediciones · 7 días";
+            }
+            else
+            {
+                TirLow = TirInRange = TirHigh = TirVeryHigh = "--";
+                HasReliableTir = false;
+                TirConfidenceNote = $"{last7Days.Count}/{minTirReadings} mediciones necesarias (7 días)";
+            }
+
+            // Tendencia de glucosa (solo si las 2 lecturas más recientes están dentro de 6 horas)
+            var recentTwo = readings.OrderByDescending(r => r.FullDateTime).Take(2).ToList();
+            if (recentTwo.Count == 2 &&
+                (recentTwo[0].FullDateTime - recentTwo[1].FullDateTime).TotalHours <= 6)
+            {
+                var diff = recentTwo[0].Glucose - recentTwo[1].Glucose;
+                (GlucoseTrend, GlucoseTrendColor) = diff switch
+                {
+                    > 30 => ("↑", Color.FromArgb("#EF4444")),
+                    > 10 => ("↗", Color.FromArgb("#F59E0B")),
+                    >= -10 => ("→", Color.FromArgb("#10B981")),
+                    >= -30 => ("↘", Color.FromArgb("#3B82F6")),
+                    _ => ("↓", Color.FromArgb("#3B82F6"))
+                };
+            }
+            else
+            {
+                GlucoseTrend = "";
+                GlucoseTrendColor = Colors.Gray;
             }
 
             TodaySummary = $"{today.Count} mediciones hoy";

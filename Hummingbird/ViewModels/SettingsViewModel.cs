@@ -64,6 +64,9 @@ public class SettingsViewModel : BaseViewModel
     private string _nightTarget = "150";
     public string NightTarget { get => _nightTarget; set => SetProperty(ref _nightTarget, value); }
 
+    private string _dailyMeasurementGoal = "4";
+    public string DailyMeasurementGoal { get => _dailyMeasurementGoal; set => SetProperty(ref _dailyMeasurementGoal, value); }
+
     private string _rangeLow = "70";
     public string RangeLow { get => _rangeLow; set => SetProperty(ref _rangeLow, value); }
 
@@ -98,6 +101,7 @@ public class SettingsViewModel : BaseViewModel
         RangeVeryHigh = config.RangeVeryHigh.ToString();
         InsulinCarbRatio = config.InsulinCarbRatio.ToString("F0");
         NightTarget = config.NightTarget.ToString();
+        DailyMeasurementGoal = config.DailyMeasurementGoal.ToString();
     }
 
     private void UpdateFormulaPreview()
@@ -115,7 +119,8 @@ public class SettingsViewModel : BaseViewModel
             RangeHigh = int.TryParse(RangeHigh, out var high) ? high : 140,
             RangeVeryHigh = int.TryParse(RangeVeryHigh, out var veryHigh) ? veryHigh : 250,
             InsulinCarbRatio = double.TryParse(InsulinCarbRatio, out var ratio) ? ratio : 10,
-            NightTarget = int.TryParse(NightTarget, out var nightTarget) ? nightTarget : 150
+            NightTarget = int.TryParse(NightTarget, out var nightTarget) ? nightTarget : 150,
+            DailyMeasurementGoal = int.TryParse(DailyMeasurementGoal, out var goal) ? Math.Clamp(goal, 1, 10) : 4
         };
 
         await _dataService.SaveConfigAsync(config);
